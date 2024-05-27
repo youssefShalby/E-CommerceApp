@@ -1,5 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
+#region Services
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -7,7 +9,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+string connectionString = builder.Configuration.GetConnectionString("eCommerceDb");
+builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
+
+#endregion
+
 var app = builder.Build();
+
+#region Middlewares
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -23,3 +32,6 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+#endregion
