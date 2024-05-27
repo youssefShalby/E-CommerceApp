@@ -5,7 +5,8 @@ global using Microsoft.EntityFrameworkCore;
 global using Microsoft.EntityFrameworkCore.Metadata.Builders;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using E_Commerce.DAL.ModelTyepConfiguration;
-
+global using E_Commerce.DAL.Data;
+global using System.Linq.Expressions; 
 global using System.Text.Json; 
 global using E_Commerce.DAL.Helpers;
-global using E_Commerce.DAL.Data;
+global using Microsoft.Extensions.Configuration;
