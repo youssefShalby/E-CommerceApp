@@ -1,3 +1,4 @@
+
 var builder = WebApplication.CreateBuilder(args);
 
 #region Services
@@ -12,6 +13,31 @@ builder.Services.AddSwaggerGen();
 string connectionString = builder.Configuration.GetConnectionString("eCommerceDb");
 builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
 
+builder.Services.AddScoped<IProductRepo, ProductRepo>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+//> register service of validation exception response
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+	options.InvalidModelStateResponseFactory = actionContext =>
+	{
+		//> get errors
+		var errors = actionContext.ModelState
+			.Where(error => error.Value?.Errors.Count > 0)
+			.SelectMany(errs => errs.Value!.Errors)
+			.Select(err => err.ErrorMessage)
+			.ToArray();
+
+		var erroResponse = new ApiValidationErrorResponse
+		{
+			Errors = errors
+		};
+
+		//> so, not need to check the ModelState in endpoints
+		return new BadRequestObjectResult(erroResponse);
+	};
+});
+
 #endregion
 
 var app = builder.Build();
@@ -24,6 +50,9 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+
+//> here, the right place of exception handler middleare
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseHttpsRedirection();
 

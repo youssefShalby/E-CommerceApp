@@ -35,12 +35,12 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 			.Skip((page - 1) * GetPageSize()).Take(GetPageSize()).ToListAsync();
 	}
 
-	public async Task<IReadOnlyList<T>> GetAllWithIncludes(int page, params Expression<Func<T, object>>[] includes)
+	public async Task<IReadOnlyList<T>> GetAllWithIncludesAsync(int page, params Expression<Func<T, object>>[] includes)
 	{
 		var query = _context.Set<T>().AsQueryable();
 		foreach(var include in includes)
 		{
-			query.Include(include);
+			query = query.Include(include);
 		}
 		return await query.Skip((page - 1) * GetPageSize()).Take(GetPageSize()).ToListAsync();
 	}
