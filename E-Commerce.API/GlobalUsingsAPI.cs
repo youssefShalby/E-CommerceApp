@@ -8,3 +8,5 @@ global using E_Commerce.API.Middlewares;
 global using E_Commerce.API.Errors;
 global using System.Net;
 global using System.Text.Json;
+global using E_Commerce.DAL.Models;
+

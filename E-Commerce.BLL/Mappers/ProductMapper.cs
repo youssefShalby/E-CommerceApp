@@ -30,7 +30,6 @@ public class ProductMapper
 			OriginalPrice = product.OriginalPrice,
 			OfferPrice = product.OfferPrice,
 			CreatedAt = product.CreatedAt,
-			ImagesUrl = product.Images.Select(img => img.Url).ToList()
 		};
 	}
 
