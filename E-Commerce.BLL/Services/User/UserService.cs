@@ -261,7 +261,7 @@ public class UserService : IUserService
 		string token = new JwtSecurityTokenHandler().WriteToken(generateToken);
 
 		user.ConfirmationCode = verificationCode;
-		user.Email = email;
+		user.ConfirmationCodeToken = token;
 		var updated = await _userManager.UpdateAsync(user);
 		if (!updated.Succeeded)
 		{
