@@ -19,6 +19,7 @@ public class ProductRepo : GenericRepo<Product>, IProductRepo
         return await _context.Set<Product>()
             .Include(P => P.Category)
             .Include(P => P.Brand)
+            .Include(P => P.Images)
             .FirstOrDefaultAsync(P => P.Id == id) ?? new();
 	}
 }

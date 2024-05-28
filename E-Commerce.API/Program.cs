@@ -15,6 +15,7 @@ builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connec
 
 builder.Services.AddScoped<IProductRepo, ProductRepo>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IRedisService, RedisService>();
 
 //> register service of validation exception response
 builder.Services.Configure<ApiBehaviorOptions>(options =>

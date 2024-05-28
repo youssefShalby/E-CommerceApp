@@ -38,7 +38,7 @@ public class ProductsController : ControllerBase
 	[HttpGet("AllIn/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes([FromRoute]int pageNumber)
 	{
-		var products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!);
+		var products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!,  P => P.Images);
 		if (products is null)
 		{
 			return NotFound();

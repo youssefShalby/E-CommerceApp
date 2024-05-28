@@ -9,5 +9,4 @@ public class GetProductDto
 	public DateTime CreatedAt { get; set; } = DateTime.Now;
 	public decimal OriginalPrice { get; set; }
 	public decimal OfferPrice { get; set; }
-    public IEnumerable<string> ImagesUrl { get; set; } = new List<string>();
 }

@@ -8,6 +8,7 @@ public class ImageTypeConfiguration : IEntityTypeConfiguration<Image>
 		modelBuilder.HasKey(I => I.Id);
 		//modelBuilder.Property(I => I.Url).IsRequired();
 
+		modelBuilder.HasData(JsonHelper.GetSeedData<Image>("../E-Commerce.DAL/SeedData/images.json"));
 
 	}
 }
