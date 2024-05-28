@@ -7,6 +7,8 @@ internal class AppUserTypeConfiguration : IEntityTypeConfiguration<ApplicationUs
 		//> configure the properties
 		modelBuilder.HasKey(U => U.Id);
 		modelBuilder.Property(U => U.DisplayName).IsRequired().HasMaxLength(100);
+		modelBuilder.Property(U => U.ConfirmationCode).IsRequired(false);
+		modelBuilder.Property(U => U.ConfirmationCodeToken).IsRequired(false);
 
 
 		//> configure the relations

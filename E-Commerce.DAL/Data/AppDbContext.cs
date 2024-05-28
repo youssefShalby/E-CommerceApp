@@ -10,7 +10,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
 
     //> initial database models
-    public DbSet<ApplicationUser> AppUsers => Set<ApplicationUser>();
     public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Image> ProductImages => Set<Image>();
