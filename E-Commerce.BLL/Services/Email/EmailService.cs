@@ -43,7 +43,7 @@ public class EmailService : IEmailService
 				await client.DisconnectAsync(true);
 				return new CommonResponse("the email sended..!!", true);
 			}
-			catch (Exception ex)
+			catch (Exception)
 			{
 				return new CommonResponse("cannot send the email right now..!!", false);
 			}

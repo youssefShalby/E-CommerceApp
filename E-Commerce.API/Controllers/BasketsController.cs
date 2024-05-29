@@ -25,7 +25,7 @@ public class BasketsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> UpdateBasket(CustomerBasket customerBasket)
+    public async Task<ActionResult> UpdateBasket(CustomerBasketDto customerBasket)
     {
         var basket = await _basketService.SetOrUpdateBasketAsync(customerBasket);
         return StatusCode(201, basket);

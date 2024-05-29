@@ -20,7 +20,7 @@ public class BasketService : IBasketService
 		return await _redisService.RemoveDataAsync<bool>(id);
 	}
 
-	public async Task<CustomerBasket> SetOrUpdateBasketAsync(CustomerBasket basket)
+	public async Task<CustomerBasket> SetOrUpdateBasketAsync(CustomerBasketDto basket)
 	{
 		var created = await _redisService.SetDataAsync(basket.Id, basket, DateTimeOffset.Now.AddDays(10));
 		if (created)

@@ -4,6 +4,7 @@ using E_Commerce.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Commerce.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240529203653_AddOrderModels")]
+    partial class AddOrderModels
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,42 +176,42 @@ namespace E_Commerce.DAL.Migrations
                         new
                         {
                             Id = new Guid("63b02c28-3053-47c6-8d60-f5a78dd8b03d"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(9929),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4344),
                             IsDeleted = false,
                             Name = "Angular"
                         },
                         new
                         {
                             Id = new Guid("78f5b4d1-44c5-471f-ae13-6d17c2d1f4d8"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(9986),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4406),
                             IsDeleted = false,
                             Name = "NetCore"
                         },
                         new
                         {
                             Id = new Guid("3b1683e2-05dc-4d2e-a30b-26c5e0d95667"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 335, DateTimeKind.Local).AddTicks(1),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4419),
                             IsDeleted = false,
                             Name = "VS Code"
                         },
                         new
                         {
                             Id = new Guid("c7a7996a-5f59-4a58-aad0-96bca0b37028"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 335, DateTimeKind.Local).AddTicks(13),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4431),
                             IsDeleted = false,
                             Name = "React"
                         },
                         new
                         {
                             Id = new Guid("da02908b-fcdb-4d0f-ba5f-2d0590377800"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 335, DateTimeKind.Local).AddTicks(26),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4444),
                             IsDeleted = false,
                             Name = "Typescript"
                         },
                         new
                         {
                             Id = new Guid("fb73255d-8682-4f63-90c0-6deff6a85840"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 335, DateTimeKind.Local).AddTicks(42),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(4459),
                             IsDeleted = false,
                             Name = "Redis"
                         });
@@ -240,28 +242,28 @@ namespace E_Commerce.DAL.Migrations
                         new
                         {
                             Id = new Guid("c13e06ae-2f07-45a7-99dc-38a5f93d2fd6"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(7807),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(2086),
                             IsDeleted = false,
                             Name = "Boards"
                         },
                         new
                         {
                             Id = new Guid("6d6b90a1-e79d-4d3b-88fd-d204daed7fbf"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(7862),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(2140),
                             IsDeleted = false,
                             Name = "Hats"
                         },
                         new
                         {
                             Id = new Guid("94934e39-4008-4b57-8144-03f2a24b22eb"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(7877),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(2154),
                             IsDeleted = false,
                             Name = "Boots"
                         },
                         new
                         {
                             Id = new Guid("7878d7c2-1f85-4a4f-b5f1-1ac4877eab19"),
-                            CreatedAt = new DateTime(2024, 5, 29, 23, 42, 21, 334, DateTimeKind.Local).AddTicks(7889),
+                            CreatedAt = new DateTime(2024, 5, 29, 23, 36, 52, 994, DateTimeKind.Local).AddTicks(2167),
                             IsDeleted = false,
                             Name = "Gloves"
                         });
@@ -291,40 +293,6 @@ namespace E_Commerce.DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryMethods");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
-                            DeliveryTime = "1-2 Days",
-                            Description = "Fastest delivery time",
-                            Price = 10m,
-                            ShortName = "UPS1"
-                        },
-                        new
-                        {
-                            Id = new Guid("e56ff70b-8f12-4b59-a5b4-32a7d9d8a1a1"),
-                            DeliveryTime = "2-5 Days",
-                            Description = "Get it within 5 days",
-                            Price = 5m,
-                            ShortName = "UPS2"
-                        },
-                        new
-                        {
-                            Id = new Guid("aa89df48-3c8f-431e-b88b-fefc0e6bb8c0"),
-                            DeliveryTime = "5-10 Days",
-                            Description = "Slower but cheap",
-                            Price = 2m,
-                            ShortName = "UPS3"
-                        },
-                        new
-                        {
-                            Id = new Guid("9c7f4d0b-6f8e-467b-b3e5-24f1a6b7d799"),
-                            DeliveryTime = "1-2 Weeks",
-                            Description = "Free! You get what you pay for",
-                            Price = 0m,
-                            ShortName = "FREE"
-                        });
                 });
 
             modelBuilder.Entity("E_Commerce.DAL.Models.Image", b =>
@@ -622,7 +590,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItem");
                 });
 
             modelBuilder.Entity("E_Commerce.DAL.Models.Product", b =>
@@ -1145,7 +1113,7 @@ namespace E_Commerce.DAL.Migrations
 
                             b1.HasKey("OrderItemId");
 
-                            b1.ToTable("OrderItems");
+                            b1.ToTable("OrderItem");
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderItemId");

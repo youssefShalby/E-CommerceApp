@@ -15,8 +15,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Image> ProductImages => Set<Image>();
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Brand> Brands => Set<Brand>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<DeliveryMethod> DeliveryMethods => Set<DeliveryMethod>();
+    public DbSet<ShipmentAddress> ShipmentAddresses => Set<ShipmentAddress>();
 
-	protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 	{
 		base.OnConfiguring(optionsBuilder);
 
@@ -34,6 +38,11 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         new ImageTypeConfiguration().Configure(modelBuilder.Entity<Image>());
         new CategoryTypeConfiguration().Configure(modelBuilder.Entity<Category>());
         new BrandTypeConfiguration().Configure(modelBuilder.Entity<Brand>());
+        new OrderItemTypeConfiguration().Configure(modelBuilder.Entity<OrderItem>());
+        new OrderTypeConfiguration().Configure(modelBuilder.Entity<Order>());
+        new DeliveryMethodTypeConfiguration().Configure(modelBuilder.Entity<DeliveryMethod>());
+        new ShipmentAddressTypeConfiguration().Configure(modelBuilder.Entity<ShipmentAddress>());
+
 
 	}
 }
