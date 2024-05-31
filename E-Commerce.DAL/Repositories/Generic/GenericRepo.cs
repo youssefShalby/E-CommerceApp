@@ -17,9 +17,10 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 		await SaveChangesAsync();
 	}
 
-	public void Delete(T entity)
+	public async Task DeleteAsync<TId>(TId id)
 	{
-		_context.Set<T>().Remove(entity);
+		var productToDelete = await GetByIdAsync(id);
+		_context.Set<T>().Remove(productToDelete);
 		SaveChanges();
 	}
 
@@ -66,14 +67,10 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 		SaveChanges();
 	}
 
-	public async Task UpdateAsync<TId>(TId id, T entity)
+	public async Task UpdateAsync(T entity)
 	{
-		var originalEntity = await GetByIdAsync(id);
-		if(originalEntity is not null)
-		{
-			_context.Set<T>().Update(entity);
-			await SaveChangesAsync();
-		}
+		_context.Set<T>().Update(entity);
+		await SaveChangesAsync();
 	}
 
 	private int GetPageSize()

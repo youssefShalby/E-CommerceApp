@@ -23,7 +23,29 @@ public class ProductsController : ControllerBase
         return StatusCode(201, result);
     }
 
-    [HttpGet("All/{pageNumber}")]
+	[HttpPut("{id}")]
+	public async Task<ActionResult> UpdateProduct([FromRoute]Guid id, [FromBody]UpdateProductDto model)
+	{
+		var result = await _productService.UpdateAsync(id, model);
+		if (!result.IsSuccessed)
+		{
+			return BadRequest(new ApiResponse(401, result.Message));
+		}
+		return Ok(result);
+	}
+
+	[HttpDelete("{id}")]
+	public async Task<ActionResult> UpdateProduct([FromRoute] Guid id)
+	{
+		var result = await _productService.DeleteProductAsync(id);
+		if (!result.IsSuccessed)
+		{
+			return BadRequest(new ApiResponse(401, result.Message));
+		}
+		return Ok(result);
+	}
+
+	[HttpGet("All/{pageNumber}")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
         var products = await _productService.GetAllAsync(pageNumber);

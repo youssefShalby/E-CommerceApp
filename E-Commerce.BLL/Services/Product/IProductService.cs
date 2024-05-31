@@ -10,5 +10,7 @@ public interface IProductService
 
 	Task<IReadOnlyList<GetProductWithIncludesDto>> GetAllWithIncludesAsync(int page, params Expression<Func<Product, object>>[] includes);
 	Task<GetProductWithIncludesDto> GetByIdWithIncludesAsync(Guid id);
+	Task<CommonResponse> UpdateAsync(Guid id, UpdateProductDto model);
+	Task<CommonResponse> DeleteProductAsync(Guid id);
 }
 

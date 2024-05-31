@@ -1,4 +1,6 @@
 ﻿
+using System.Reflection.PortableExecutable;
+
 namespace E_Commerce.DAL.Models;
 
 public class Image:BaseModel<Guid>

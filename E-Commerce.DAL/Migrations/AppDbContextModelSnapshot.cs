@@ -67,7 +67,7 @@ namespace E_Commerce.DAL.Migrations
                     b.HasIndex("AppUserId")
                         .IsUnique();
 
-                    b.ToTable("Addresses");
+                    b.ToTable("Addresses", (string)null);
                 });
 
             modelBuilder.Entity("E_Commerce.DAL.Models.ApplicationUser", b =>
@@ -168,7 +168,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
 
                     b.HasData(
                         new
@@ -234,7 +234,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
 
                     b.HasData(
                         new
@@ -290,7 +290,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DeliveryMethods");
+                    b.ToTable("DeliveryMethods", (string)null);
 
                     b.HasData(
                         new
@@ -344,7 +344,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
 
                     b.HasData(
                         new
@@ -600,7 +600,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasIndex("ShipToAddressId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("E_Commerce.DAL.Models.OrderItem", b =>
@@ -622,7 +622,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("E_Commerce.DAL.Models.Product", b =>
@@ -668,7 +668,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
 
                     b.HasData(
                         new
@@ -945,7 +945,7 @@ namespace E_Commerce.DAL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ShipmentAddresses");
+                    b.ToTable("ShipmentAddresses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1127,7 +1127,7 @@ namespace E_Commerce.DAL.Migrations
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade);
 
-                    b.OwnsOne("E_Commerce.DAL.Models.ProductOrderItem", "ItemOrdered", b1 =>
+                    b.OwnsOne("E_Commerce.DAL.Models.OrderItem.ItemOrdered#E_Commerce.DAL.Models.ProductOrderItem", "ItemOrdered", b1 =>
                         {
                             b1.Property<Guid>("OrderItemId")
                                 .HasColumnType("uniqueidentifier");
@@ -1145,7 +1145,7 @@ namespace E_Commerce.DAL.Migrations
 
                             b1.HasKey("OrderItemId");
 
-                            b1.ToTable("OrderItems");
+                            b1.ToTable("OrderItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderItemId");

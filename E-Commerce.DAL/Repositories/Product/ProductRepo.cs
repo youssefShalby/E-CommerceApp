@@ -20,6 +20,6 @@ public class ProductRepo : GenericRepo<Product>, IProductRepo
             .Include(P => P.Category)
             .Include(P => P.Brand)
             .Include(P => P.Images)
-            .FirstOrDefaultAsync(P => P.Id == id) ?? new();
+            .FirstOrDefaultAsync(P => P.Id == id) ?? null!;
 	}
 }

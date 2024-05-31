@@ -15,6 +15,15 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IRoleService, RoleService>();
 		services.AddScoped<ITokenService, TokenService>();
 		services.AddScoped<IHandlerService, HandlerService>();
+		services.AddScoped<IOrderService, OrderService>();
+		services.AddScoped<IOrderRepo, OrderRepo>();
+		services.AddScoped<IDeliveryMethodRepo, DeliveryMethodRepo>();
+		services.AddScoped<ICategoryRepo, CategoryRepo>();
+		services.AddScoped<IImageRepo, ImageRepo>();
+		services.AddScoped<IBrandRepo, BrandRepo>();
+		services.AddScoped<IBrandService, BrandService>();
+		services.AddScoped<ICategoryService, CategoryService>();
+		services.AddScoped<IDeliveryMethodService, DeliveryMethodService>();
 
 		#endregion
 

@@ -1,13 +1,17 @@
 ﻿
 
+using MailKit.Net.Imap;
+
 namespace E_Commerce.BLL.Services;
 
 public class ProductService : IProductService
 {
 	private readonly IProductRepo _productRepo;
-    public ProductService(IProductRepo productRepo)
+	private readonly IImageRepo _imageRepo;
+    public ProductService(IProductRepo productRepo, IImageRepo imageRepo)
     {
 		_productRepo = productRepo;
+		_imageRepo = imageRepo;
     }
 
     public async Task<CommonResponse> CreateProductAsync(AddProductDto model)
@@ -23,8 +27,24 @@ public class ProductService : IProductService
 		{
 			return new CommonResponse($"cannot create product and reason: {ex.Message}", false);
 		}
+	}
 
-
+	public async Task<CommonResponse> DeleteProductAsync(Guid id)
+	{
+		var productToDelete = await _productRepo.GetByIdWithIncludesAsync(id);
+		if (productToDelete is null)
+		{
+			return new CommonResponse("Product not founded..!!", false);
+		}
+		try
+		{
+			await _productRepo.DeleteAsync(id);
+			return new CommonResponse("Product Deleted..!!", true);
+		}
+		catch(Exception ex)
+		{
+			return new CommonResponse($"cannot delete the product right now, reason: {ex.Message}", false);
+		}
 	}
 
 	public async Task<IReadOnlyList<GetProductDto>> GetAllAsync(int page)
@@ -97,4 +117,42 @@ public class ProductService : IProductService
 			return null!;
 		}
 	}
+
+	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateProductDto model)
+	{
+		var productToUpdate = await _productRepo.GetByIdWithIncludesAsync(id);
+		if(productToUpdate is null)
+		{
+			return new CommonResponse("Product not founded..!!", false);
+		}
+
+		try
+		{
+			productToUpdate.Name = model.Name;
+			productToUpdate.Description = model.Description;
+			productToUpdate.OfferPrice = model.OfferPrice;
+			productToUpdate.OriginalPrice = model.OriginalPrice;
+			productToUpdate.Stock = model.Stock;
+			productToUpdate.BrandId = model.BrandId;
+			productToUpdate.CategoryId = model.CategoryId;
+
+			await _imageRepo.DeleteImagesOfProduct(id);
+			productToUpdate.Images = model.ImagesUrl.Select(img => new Image
+			{
+				Id = Guid.NewGuid(),
+				Url = img,
+				ProductId = productToUpdate.Id,
+
+			}).ToList();
+
+			_productRepo.Update(productToUpdate);
+			return new CommonResponse("product updated success..!!", true);
+		}
+		catch(Exception ex)
+		{
+			return new CommonResponse($"Cannot Update Product Right Now: reason {ex.Message}", false);
+		}
+	}
+
+	
 }
