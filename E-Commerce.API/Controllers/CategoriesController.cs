@@ -14,7 +14,7 @@ public class CategoriesController : ControllerBase
         _categoryService = categoryService;
     }
 
-	[HttpGet("All")]
+	[HttpGet("All/{pageNumber}")]
 	public async Task<ActionResult> GetAll(int page)
 	{
 		var result = await _categoryService.GetAllAsync(page);
@@ -25,7 +25,7 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/All")]
+	[HttpGet("In/All/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var result = await _categoryService.GetAllWithIncludesAsync(page, C => C.Products);

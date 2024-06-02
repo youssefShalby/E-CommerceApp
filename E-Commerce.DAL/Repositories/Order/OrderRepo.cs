@@ -1,4 +1,5 @@
 ﻿
+
 namespace E_Commerce.DAL.Repositories;
 
 public class OrderRepo : GenericRepo<Order>, IOrderRepo
@@ -9,5 +10,13 @@ public class OrderRepo : GenericRepo<Order>, IOrderRepo
     {
 		_context = context;
 		_configuration = configuration;
+	}
+
+	public async Task<Order> GetByIdWithIncludesAsync(Guid id)
+	{
+		return await _context.Set<Order>()
+			.Include(O => O.OrderItems)
+			.Include(O => O.DeliveryMethod)
+			.FirstOrDefaultAsync(O => O.Id == id) ?? null!;
 	}
 }

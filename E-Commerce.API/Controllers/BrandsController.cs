@@ -14,7 +14,7 @@ public class BrandsController : ControllerBase
         _brandService = brandService;
     }
 
-    [HttpGet("All")]
+    [HttpGet("All/{pageNumber}")]
     public async Task<ActionResult> GetAll(int page)
     {
         var result = await _brandService.GetAllAsync(page);
@@ -25,7 +25,7 @@ public class BrandsController : ControllerBase
         return Ok(result);
     }
 
-	[HttpGet("In/All")]
+	[HttpGet("In/All/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var result = await _brandService.GetAllWithIncludes(page, B => B.Products);

@@ -4,6 +4,7 @@ using E_Commerce.DAL.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Commerce.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240531173346_MakeShipmentAddressModelBelongsToOrderModel")]
+    partial class MakeShipmentAddressModelBelongsToOrderModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -174,42 +176,42 @@ namespace E_Commerce.DAL.Migrations
                         new
                         {
                             Id = new Guid("63b02c28-3053-47c6-8d60-f5a78dd8b03d"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9107),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7315),
                             IsDeleted = false,
                             Name = "Angular"
                         },
                         new
                         {
                             Id = new Guid("78f5b4d1-44c5-471f-ae13-6d17c2d1f4d8"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9176),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7470),
                             IsDeleted = false,
                             Name = "NetCore"
                         },
                         new
                         {
                             Id = new Guid("3b1683e2-05dc-4d2e-a30b-26c5e0d95667"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9191),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7484),
                             IsDeleted = false,
                             Name = "VS Code"
                         },
                         new
                         {
                             Id = new Guid("c7a7996a-5f59-4a58-aad0-96bca0b37028"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9203),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7496),
                             IsDeleted = false,
                             Name = "React"
                         },
                         new
                         {
                             Id = new Guid("da02908b-fcdb-4d0f-ba5f-2d0590377800"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9215),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7509),
                             IsDeleted = false,
                             Name = "Typescript"
                         },
                         new
                         {
                             Id = new Guid("fb73255d-8682-4f63-90c0-6deff6a85840"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(9230),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(7524),
                             IsDeleted = false,
                             Name = "Redis"
                         });
@@ -240,28 +242,28 @@ namespace E_Commerce.DAL.Migrations
                         new
                         {
                             Id = new Guid("c13e06ae-2f07-45a7-99dc-38a5f93d2fd6"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(5790),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(2205),
                             IsDeleted = false,
                             Name = "Boards"
                         },
                         new
                         {
                             Id = new Guid("6d6b90a1-e79d-4d3b-88fd-d204daed7fbf"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(5901),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(2308),
                             IsDeleted = false,
                             Name = "Hats"
                         },
                         new
                         {
                             Id = new Guid("94934e39-4008-4b57-8144-03f2a24b22eb"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(5932),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(2322),
                             IsDeleted = false,
                             Name = "Boots"
                         },
                         new
                         {
                             Id = new Guid("7878d7c2-1f85-4a4f-b5f1-1ac4877eab19"),
-                            CreatedAt = new DateTime(2024, 5, 31, 21, 11, 49, 94, DateTimeKind.Local).AddTicks(5953),
+                            CreatedAt = new DateTime(2024, 5, 31, 20, 33, 45, 948, DateTimeKind.Local).AddTicks(2335),
                             IsDeleted = false,
                             Name = "Gloves"
                         });
@@ -1075,6 +1077,9 @@ namespace E_Commerce.DAL.Migrations
                             b1.Property<string>("FirstName")
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
+
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("LastName")
                                 .IsRequired()

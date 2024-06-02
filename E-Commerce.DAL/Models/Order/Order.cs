@@ -4,10 +4,6 @@ public class Order : BaseModel<Guid>
 {
 	public string BuyerEmail { get; set; } = string.Empty;
 	public DateTime OrderDate { get; set; } = DateTime.UtcNow;
-
-
-	[ForeignKey(nameof(ShipToAddress))]
-	public Guid ShipToAddressId { get; set; }
 	public ShipmentAddress? ShipToAddress { get; set; }
 
 
@@ -15,9 +11,10 @@ public class Order : BaseModel<Guid>
 	public Guid DeliveryMethodId { get; set; }
 	public DeliveryMethod? DeliveryMethod { get; set; }
 
-	public IReadOnlyList<OrderItem>? OrderItems { get; set; }
+	public ICollection<OrderItem>? OrderItems { get; set; }
 	public decimal TotalPrice { get; set; }
 	public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
 	public string? PaymentIntentId { get; set; }
+
 }

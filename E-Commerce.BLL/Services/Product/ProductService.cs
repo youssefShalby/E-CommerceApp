@@ -136,14 +136,16 @@ public class ProductService : IProductService
 			productToUpdate.BrandId = model.BrandId;
 			productToUpdate.CategoryId = model.CategoryId;
 
-			await _imageRepo.DeleteImagesOfProduct(id);
-			productToUpdate.Images = model.ImagesUrl.Select(img => new Image
+			productToUpdate.Images.Clear();
+			var images = model.ImagesUrl.Select(img => new Image
 			{
 				Id = Guid.NewGuid(),
 				Url = img,
 				ProductId = productToUpdate.Id,
 
 			}).ToList();
+
+			await _imageRepo.CreateWithRangAsync(images);
 
 			_productRepo.Update(productToUpdate);
 			return new CommonResponse("product updated success..!!", true);

@@ -14,7 +14,7 @@ public class DeliveryMethodsController : ControllerBase
         _deliveryMethodService = deliveryMethodService;
     }
 
-	[HttpGet("All")]
+	[HttpGet("All/{pageNumber}")]
 	public async Task<ActionResult> GetAll(int page)
 	{
 		var result = await _deliveryMethodService.GetAllAsync(page);
@@ -25,7 +25,7 @@ public class DeliveryMethodsController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/All")]
+	[HttpGet("In/All/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var result = await _deliveryMethodService.GetAllWithIncludesAsync(page, DM => DM.Orders);
