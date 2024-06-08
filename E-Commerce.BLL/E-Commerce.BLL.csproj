@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="MailKit" Version="4.6.0" />
+    <PackageReference Include="Stripe.net" Version="44.11.0" />
   </ItemGroup>
 
   <ItemGroup>

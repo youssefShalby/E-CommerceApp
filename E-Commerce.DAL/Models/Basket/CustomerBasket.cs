@@ -13,4 +13,7 @@ public class CustomerBasket : BaseModel<string>
         Id = BasketId;
     }
     public ICollection<BasketItem> Items { get; set; } = new HashSet<BasketItem>();
+	public Guid? DeliveryMethodId { get; set; }
+	public string ClientSecret { get; set; } = string.Empty;
+	public string PaymentIntentId { get; set; } = string.Empty;
 }

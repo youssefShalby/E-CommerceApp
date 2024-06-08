@@ -18,6 +18,9 @@ builder.Services.AddSwaggerGen();
 var smtpSettings = builder.Configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
 builder.Services.AddSingleton(smtpSettings);
 
+var stripeSettings = builder.Configuration.GetSection("StripeSettings").Get<StripeSettings>();
+builder.Services.AddSingleton(stripeSettings);
+
 builder.Services.AddApplicationService(builder.Configuration);
 
 string connectionString = builder.Configuration.GetConnectionString("eCommerceDb");

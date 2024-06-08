@@ -1,6 +1,7 @@
 ﻿
 
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 using System.Text.Json;
 
@@ -10,12 +11,23 @@ public class RedisService : IRedisService
 {
 	private readonly IConfiguration _configuration;
 	private readonly IDatabase _cacheDb;
+	private readonly ILogger<RedisService> _logger;
 
-	public RedisService(IConfiguration configuration)
+	public RedisService(IConfiguration configuration, ILogger<RedisService> logger)
     {
 		_configuration = configuration;
-		var redis = ConnectionMultiplexer.Connect(_configuration.GetConnectionString("Redis"));
-		_cacheDb = redis.GetDatabase();
+		_logger = logger;
+		try
+		{
+			var redis = ConnectionMultiplexer.Connect(_configuration.GetConnectionString("Redis"));
+			_cacheDb = redis.GetDatabase();
+		}
+		catch(Exception ex)
+		{
+			_logger.LogError($"run the Redis Server now, {ex.Message}");
+			_cacheDb = null!;
+		}
+		
 	}
 
 	public async Task<T> GetDataAsync<T>(string key)

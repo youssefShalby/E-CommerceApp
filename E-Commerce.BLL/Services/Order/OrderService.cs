@@ -9,13 +9,15 @@ public class OrderService : IOrderService
     private readonly IProductRepo _productRepo;
     private readonly IDeliveryMethodRepo _deliveryMethodService;
     private readonly IOrderItemRepo _orderItemRepo;
-    public OrderService(IOrderRepo orderRepo, IBasketService basketService, IProductRepo productRepo, IDeliveryMethodRepo deliveryMethodService, IOrderItemRepo orderItemRepo)
+    private readonly IPaymentService _paymentService;
+    public OrderService(IOrderRepo orderRepo, IBasketService basketService, IProductRepo productRepo, IDeliveryMethodRepo deliveryMethodService, IOrderItemRepo orderItemRepo, IPaymentService paymentService)
     {
         _orderRepo = orderRepo;
         _basketService = basketService;
         _productRepo = productRepo;
         _deliveryMethodService = deliveryMethodService;
         _orderItemRepo = orderItemRepo;
+        _paymentService = paymentService;
     }
 
     public async Task<GetOrderDto> CreateOrderAsync(CreateOrderDto model)
@@ -23,41 +25,64 @@ public class OrderService : IOrderService
         //> get the basket
         var basket = await _basketService.GetBasketAsync(model.BasketId);
 
+        if(basket is null)
+        {
+            return null!;
+        }
+
         //> get the Items from the Basket
         var Items = await GetOrderItemsFromBasket(basket.Items);
 
         //> calculate the total prie, iterates on each item and calc [sum * quantity]
         decimal subTotalPrice = Items.Sum(I => I.Price * I.Quantity);
 
-        //> get the price of the Shipment
-        var deliverMethod = await _deliveryMethodService.GetByIdAsync(model.DeliveryMethodId);
-        decimal totalPrice = subTotalPrice + deliverMethod.Price;
+		//> get the price of the Shipment
+		var deliverMethod = await _deliveryMethodService.GetByIdAsync(model.DeliveryMethodId);
+		decimal totalPrice = subTotalPrice + deliverMethod.Price;
 
-        //> create the order
-        Order newOrder = new Order
+		//> check if there is order exist with paymentIntent or not
+		var existingOrder = await _orderRepo.GetByPaymentIntentWithIncludesAsync(basket.PaymentIntentId);
+        if(existingOrder is not null)
         {
-            BuyerEmail = model.BuyerEmail,
-            OrderItems = Items,
-            TotalPrice = totalPrice,
-            DeliveryMethodId = model.DeliveryMethodId,
-            ShipToAddress = model.ShipmentAddress,
-            Status = OrderStatus.Pending
-        };
+            //> update it
+            var orderToUpdate = new UpdateOrderDto
+            {
+                BasketId = model.BasketId,
+                BuyerEmail = model.BuyerEmail,
+                DeliveryMethodId = model.DeliveryMethodId,
+                ShipToAddress = model.ShipmentAddress,
+			};
 
-        //> set the foreign kes of Order to the OrderItem
-        foreach (var item in newOrder.OrderItems)
-        {
-            item.OrderId = newOrder.Id;
+            var result = await UpdateAsync(existingOrder.Id, orderToUpdate);
+
+            return result.IsSuccessed ? OrderMapper.ToGetDto(existingOrder) : null!;
         }
+        else
+        {
+			//> create the order
+			Order newOrder = new Order
+			{
+				BuyerEmail = model.BuyerEmail,
+				OrderItems = Items,
+				TotalPrice = totalPrice,
+				DeliveryMethodId = model.DeliveryMethodId,
+				ShipToAddress = model.ShipmentAddress,
+				Status = OrderStatus.Pending,
+                PaymentIntentId = basket.PaymentIntentId
+			};
 
-        //> save the order to Db
-        await _orderRepo.CreateAsync(newOrder);
+			//> set the foreign kes of Order to the OrderItem
+			foreach (var item in newOrder.OrderItems)
+			{
+				item.OrderId = newOrder.Id;
+			}
 
-        //> delete the Basket
-        await _basketService.RmoveBasketAsync(basket.Id);
+			//> save the order to Db
+			await _orderRepo.CreateAsync(newOrder);
 
-        //> return the details of the Order
-        return OrderMapper.ToGetDto(newOrder);
+			//> return the details of the Order
+			return OrderMapper.ToGetDto(newOrder);
+		}
     }
 
 	public async Task<CommonResponse> DeleteAsync(Guid id)
