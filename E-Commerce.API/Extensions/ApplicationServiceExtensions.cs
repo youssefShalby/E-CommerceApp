@@ -1,4 +1,6 @@
 ﻿
+using E_Commerce.API.ApiHelper;
+
 namespace E_Commerce.API.Extensions;
 
 public static class ApplicationServiceExtensions
@@ -29,6 +31,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IOrderItemRepo, OrderItemRepo>();
 		services.AddScoped<IPaymentService, PaymentService>();
 		services.AddScoped<IUnitOfWork, UnitOfWork>();
+		services.AddScoped<ICacheHelper, CacheHelper>();
 
 		#endregion
 

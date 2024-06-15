@@ -42,7 +42,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
-app.UseMiddleware<RateLimitingRequestsMiddleware>();
+//app.UseMiddleware<RateLimitingRequestsMiddleware>();
 
 //> here, the right place of exception handler middleare
 app.UseMiddleware<ExceptionHandlerMiddleware>();

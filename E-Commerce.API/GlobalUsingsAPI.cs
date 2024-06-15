@@ -19,5 +19,6 @@ global using E_Commerce.BLL.Mappers;
 global using E_Commerce.DAL.Query;
 global using E_Commerce.DAL.Helpers;
 global using Microsoft.OpenApi.Models;
+global using E_Commerce.API.ApiHelper;
 
 

@@ -1,6 +1,5 @@
 ﻿
 
-
 namespace E_Commerce.API.Controllers;
 
 [Route("api/[controller]")]
@@ -8,7 +7,7 @@ namespace E_Commerce.API.Controllers;
 public class InfoController : ControllerBase
 {
 	private readonly IUserService _userService;
-	public InfoController(IUserService userService, IConfiguration configuration)
+	public InfoController(IUserService userService)
 	{
 		_userService = userService;
 	}

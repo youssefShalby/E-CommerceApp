@@ -9,42 +9,79 @@ namespace E_Commerce.API.Controllers;
 public class BrandsController : ControllerBase
 {
 	private readonly IBrandService _brandService;
-    public BrandsController(IBrandService brandService)
+	private readonly ICacheHelper _cacheHelper;
+    public BrandsController(IBrandService brandService, ICacheHelper cacheHelper)
     {
         _brandService = brandService;
+		_cacheHelper = cacheHelper;
     }
 
 	[HttpGet("All/{pageNumber}")]
 	[Authorize(policy: "Admin")]
-    public async Task<ActionResult> GetAll(int page)
+    public async Task<ActionResult> GetAll(int pageNumber)
     {
-        var result = await _brandService.GetAllAsync(page);
-        if(result is null)
-        {
-            return BadRequest(new ApiResponse(404));
-        }
-        return Ok(result);
+		var cacheData = "GetAllBrands";
+
+		var data = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetBrandDto>>(cacheData);
+
+		if (data is not null)
+		{
+			return Ok(data);
+		}
+
+		//> if data is not in cache, get it and then add it in cache
+		data = await _brandService.GetAllAsync(pageNumber);
+		if (data is null)
+		{
+			return BadRequest(new ApiResponse(404));
+		}
+
+		await _cacheHelper.SetDataInCache(cacheData, data);
+
+		return Ok(data);
     }
 
 	[HttpPost("All/filter")]
 	public async Task<ActionResult> GetAllWithFilter(BrandQueryHandler queryHandler)
 	{
-		var result = await _brandService.GetAllWithFilterAsync(queryHandler);
+		var cacheData = "GetAllBrandsWithFilter";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetBrandDto>>(cacheData);
+		if(result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _brandService.GetAllWithFilterAsync(queryHandler);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
 	[HttpGet("AllIn/{pageNumber}")]
-	public async Task<ActionResult> GetAllWithIncludes(int page)
+	public async Task<ActionResult> GetAllWithIncludes(int pageNumber)
 	{
-		var result = await _brandService.GetAllWithIncludes(page, B => B.Products);
+		var cacheData = "GetAllBrandsWithIncludes";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetBrandWithIncludesDto>>(cacheData);
+		if(result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _brandService.GetAllWithIncludes(pageNumber, B => B.Products);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -52,11 +89,22 @@ public class BrandsController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
-		var result = await _brandService.GetByIdAsync(id);
+		var cacheData = "GetBrandById";
+
+		var result = await _cacheHelper.GetDataFromCache<GetBrandDto>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _brandService.GetByIdAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache<GetBrandDto>(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -64,11 +112,22 @@ public class BrandsController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
-		var result = await _brandService.GetByIdWithIncludes(id);
+		var cacheData = "GetBrandByIdWithIncludes";
+
+		var result = await _cacheHelper.GetDataFromCache<GetBrandWithIncludesDto>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _brandService.GetByIdWithIncludes(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache<GetBrandWithIncludesDto>(cacheData, result);
+
 		return Ok(result);
 	}
 

@@ -9,42 +9,77 @@ namespace E_Commerce.API.Controllers;
 public class CategoriesController : ControllerBase
 {
 	private readonly ICategoryService _categoryService;
-    public CategoriesController(ICategoryService categoryService)
+	private readonly ICacheHelper _cacheHelper;
+    public CategoriesController(ICategoryService categoryService, ICacheHelper cacheHelper)
     {
         _categoryService = categoryService;
+		_cacheHelper = cacheHelper;
     }
 
 	[HttpGet("All/{pageNumber}")]
 	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetAll(int page)
+	public async Task<ActionResult> GetAll(int pageNumber)
 	{
-		var result = await _categoryService.GetAllAsync(page);
+		var cacheData = "GetAllCategories";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetCategoryDto>>(cacheData);
+		if(result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetAllAsync(pageNumber);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
 	[HttpPost("All/filter")]
 	public async Task<ActionResult> GetAllWithFilter(CategoryQueryHandler queryHandler)
 	{
-		var result = await _categoryService.GetAllWithFilterAsync(queryHandler);
+		var cacheData = "GetAllCategoriesWithFilter";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetCategoryDto>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetAllWithFilterAsync(queryHandler);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
 	[HttpGet("AllIn/{pageNumber}")]
-	public async Task<ActionResult> GetAllWithIncludes(int page)
+	public async Task<ActionResult> GetAllWithIncludes(int pageNumber)
 	{
-		var result = await _categoryService.GetAllWithIncludesAsync(page, C => C.Products);
+		var cacheData = "GetAllCategoriesWithIncludes";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetCategoryWithIncludesDto>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetAllWithIncludesAsync(pageNumber, C => C.Products);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -52,11 +87,22 @@ public class CategoriesController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
-		var result = await _categoryService.GetByIdAsync(id);
+		var cacheData = "GetCayegoryById";
+
+		var result = await _cacheHelper.GetDataFromCache<GetCategoryDto>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetByIdAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache<GetCategoryDto>(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -64,11 +110,22 @@ public class CategoriesController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
-		var result = await _categoryService.GetByIdWithIncludesAsync(id);
+		var cacheData = "GetCategoryByIdWithIncludes";
+
+		var result = await _cacheHelper.GetDataFromCache<GetCategoryDto>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetByIdWithIncludesAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 

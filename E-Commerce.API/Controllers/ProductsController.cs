@@ -8,9 +8,11 @@ namespace E_Commerce.API.Controllers;
 public class ProductsController : ControllerBase
 {
 	private readonly IProductService _productService;
-    public ProductsController(IProductService productService)
+	private readonly ICacheHelper _cacheHelper;
+    public ProductsController(IProductService productService, ICacheHelper cacheHelper)
     {
         _productService = productService;
+		_cacheHelper = cacheHelper;
     }
 
     [HttpPost]
@@ -61,7 +63,9 @@ public class ProductsController : ControllerBase
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
-        var products = await _productService.GetAllAsync(pageNumber);
+		//> the system support many many products in short time, so we need the system always updated, s we not need caching
+
+		var products = await _productService.GetAllAsync(pageNumber);
         if(products is null)
         {
             return NotFound();
@@ -86,11 +90,20 @@ public class ProductsController : ControllerBase
 			UserId = userId
 		};
 
-		var products = await _productService.GetAllCreatedProductsByUserAsync(model);
+		var cacheData = "GetAllProductsCreatedByUser";
+		var products = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetProductDto>>(cacheData);
+		if(products is not null)
+		{
+			return Ok(products);
+		}
+
+		products = await _productService.GetAllCreatedProductsByUserAsync(model);
 		if (products is null)
 		{
 			return NotFound();
 		}
+
+		await _cacheHelper.SetDataInCache(userId, products);
 
 		return Ok(products);
 	}
@@ -98,11 +111,23 @@ public class ProductsController : ControllerBase
 	[HttpPost("All/filter")]
 	public async Task<ActionResult> GetAllWithFilter([FromBody]ProductQueryHandler queryHandler)
 	{
-		var products = await _productService.GetAllWithFilterAsync(queryHandler);
+
+		//> we need short time caching here
+
+		var cacheData = "GetAllProductsWithFilter";
+		var products = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetProductDto>>(cacheData);
+		if(products is not null)
+		{
+			return Ok(products);
+		}
+
+		products = await _productService.GetAllWithFilterAsync(queryHandler);
 		if(products is null)
 		{
 			return NotFound();
 		}
+
+		await _cacheHelper.SetDataInShortTimeCache(cacheData, products);
 
 		return Ok(products);
 	}
@@ -111,11 +136,23 @@ public class ProductsController : ControllerBase
 	[Authorize(policy: "User")]
 	public async Task<ActionResult> GetAllWithIncludes([FromBody] int pageNumber)
 	{
-		var products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!,  P => P.Images);
+		//> we need short time caching here
+
+		var cacheData = "GetAllProductsWithIncludes";
+
+		var products = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetProductWithIncludesDto>>(cacheData);
+		if(products is not null)
+		{
+			return Ok(products);
+		}
+
+		products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!,  P => P.Images);
 		if (products is null)
 		{
 			return NotFound();
 		}
+
+		await _cacheHelper.SetDataInShortTimeCache(cacheData, products);
 
 		return Ok(products);
 	}
@@ -124,11 +161,20 @@ public class ProductsController : ControllerBase
 	[Authorize("Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
-		var product = await _productService.GetByIdAsync(id);
+		var cacheData = "GetProductById";
+		var product = await _cacheHelper.GetDataFromCache<GetProductDto>(cacheData);
+		if(product is not null)
+		{
+			return Ok(product);
+		}
+
+		product = await _productService.GetByIdAsync(id);
 		if (product is null)
 		{
 			return NotFound();
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, product);
 
 		return Ok(product);
 	}
@@ -137,11 +183,20 @@ public class ProductsController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
-		var product = await _productService.GetByIdWithIncludesAsync(id);
+		var cacheData = "GetProductByIdWithIncludes";
+		var product = await _cacheHelper.GetDataFromCache<GetProductWithIncludesDto>(cacheData);
+		if (product is not null)
+		{
+			return Ok(product);
+		}
+
+		product = await _productService.GetByIdWithIncludesAsync(id);
 		if (product is null)
 		{
 			return NotFound();
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, product);
 
 		return Ok(product);
 	}

@@ -9,9 +9,11 @@ namespace E_Commerce.API.Controllers;
 public class OrdersController : ControllerBase
 {
 	private readonly IOrderService _orderService;
-    public OrdersController(IOrderService orderService)
+	private readonly ICacheHelper _cacheHelper;
+    public OrdersController(IOrderService orderService, ICacheHelper cacheHelper)
     {
         _orderService = orderService;
+		_cacheHelper = cacheHelper;
     }
 
     [HttpPost]
@@ -39,7 +41,9 @@ public class OrdersController : ControllerBase
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
-        var result = await _orderService.GetAllAsync(pageNumber, O => O.OrderItems!, O => O.DeliveryMethod!);
+
+		//> the system support many many orders in short time, so we need the system always updated
+		var result = await _orderService.GetAllAsync(pageNumber, O => O.OrderItems!, O => O.DeliveryMethod!);
         if(result is null)
         {
             return BadRequest(new ApiResponse(400));
@@ -64,11 +68,21 @@ public class OrdersController : ControllerBase
 			UserEmail = userEmail
 		};
 
-		var result = await _orderService.GetAllCreatedOrdersByUserAsync(model);
+		var cacheData = "GetAllOrdersForUser";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetOrderDto>>(cacheData);
+		if(result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _orderService.GetAllCreatedOrdersByUserAsync(model);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(400));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
 
 		return Ok(result);
 	}
@@ -77,6 +91,7 @@ public class OrdersController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAllWithFilter(OrderQueryHandler queryHandler)
     {
+		//> the system support many many orders in short time, so we need the system always updated
         var result = await _orderService.GetAllWithFilterAsync(queryHandler);
         if(result is null)
         {
@@ -90,11 +105,21 @@ public class OrdersController : ControllerBase
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
-		var result = await _orderService.GetOrderAsync(id);
+		var cacheData = "GetOrderById";
+
+		var result = await _cacheHelper.GetDataFromCache<GetOrderDto>(cacheData);
+		if(result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _orderService.GetOrderAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(400));
 		}
+
+		await _cacheHelper.SetDataInCache<GetOrderDto>(cacheData, result);
 
 		return Ok(result);
 	}

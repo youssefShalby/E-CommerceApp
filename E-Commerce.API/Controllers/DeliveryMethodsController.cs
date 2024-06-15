@@ -1,5 +1,7 @@
 ﻿
 
+using E_Commerce.API.ApiHelper;
+
 namespace E_Commerce.API.Controllers;
 
 
@@ -9,30 +11,55 @@ namespace E_Commerce.API.Controllers;
 public class DeliveryMethodsController : ControllerBase
 {
 	private readonly IDeliveryMethodService _deliveryMethodService;
-    public DeliveryMethodsController(IDeliveryMethodService deliveryMethodService)
+	private readonly ICacheHelper _cacheHelper;
+    public DeliveryMethodsController(IDeliveryMethodService deliveryMethodService, ICacheHelper cacheHelper)
     {
         _deliveryMethodService = deliveryMethodService;
+		_cacheHelper = cacheHelper;
     }
 
 	[HttpGet("All/{pageNumber}")]
 	public async Task<ActionResult> GetAll(int page)
 	{
-		var result = await _deliveryMethodService.GetAllAsync(page);
+
+		var cacheData = "GetAllDelMethod";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetDeliveryDto>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _deliveryMethodService.GetAllAsync(page);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
 	[HttpGet("In/All/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
-		var result = await _deliveryMethodService.GetAllWithIncludesAsync(page, DM => DM.Orders);
+		var cacheData = "GetAllDelMethodWithIncludes";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetDeliveryWithIncludes>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _deliveryMethodService.GetAllWithIncludesAsync(page, DM => DM.Orders);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -40,11 +67,23 @@ public class DeliveryMethodsController : ControllerBase
 	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
-		var result = await _deliveryMethodService.GetByIdAsync(id);
+		var cacheData = "GetDelMethodById";
+
+		var result = await _cacheHelper.GetDataFromCache<GetDeliveryDto>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+
+		result = await _deliveryMethodService.GetByIdAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache<GetDeliveryDto>(cacheData, result);
+
 		return Ok(result);
 	}
 
@@ -52,11 +91,22 @@ public class DeliveryMethodsController : ControllerBase
 	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
-		var result = await _deliveryMethodService.GetByIdWithIncludesAsync(id);
+		var cacheData = "GetDelMethodWithIncludesById";
+
+		var result = await _cacheHelper.GetDataFromCache<GetDeliveryWithIncludes>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _deliveryMethodService.GetByIdWithIncludesAsync(id);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
 		}
+
+		await _cacheHelper.SetDataInCache<GetDeliveryDto>(cacheData, result);
+
 		return Ok(result);
 	}
 
