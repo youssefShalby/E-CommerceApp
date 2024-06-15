@@ -14,7 +14,7 @@ public class BrandsController : ControllerBase
         _brandService = brandService;
     }
 
-    [HttpGet("All/{pageNumber}")]
+	[HttpGet("All/{pageNumber}")]
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int page)
     {
