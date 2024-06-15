@@ -1,5 +1,6 @@
 ﻿
 
+
 namespace E_Commerce.BLL.Services;
 
 public class OrderService : IOrderService
@@ -125,6 +126,42 @@ public class OrderService : IOrderService
         {
             return null!;
         }
+	}
+
+	public async Task<IReadOnlyList<GetOrderDto>> GetAllCreatedOrdersByUserAsync(GetCreatedOrdersByUser model)
+	{
+		var orders = await _orderRepo.GetAllCreatedOrdersByUserAsync(model.UserEmail, model.PageNumber);
+		if (orders is null)
+		{
+			return null!;
+		}
+
+		try
+		{
+			return orders.Select(order => OrderMapper.ToGetDto(order)).ToList();
+		}
+		catch (Exception)
+		{
+			return null!;
+		}
+	}
+
+	public async Task<IReadOnlyList<GetOrderDto>> GetAllWithFilterAsync(OrderQueryHandler queryHandler)
+	{
+		var orders = await _orderRepo.GetAllWithQueryAsync(queryHandler);
+		if (orders is null)
+		{
+			return null!;
+		}
+
+		try
+		{
+			return orders.Select(order => OrderMapper.ToGetDto(order)).ToList();
+		}
+		catch (Exception)
+		{
+			return null!;
+		}
 	}
 
 	public async Task<GetOrderDto> GetOrderAsync(Guid id)

@@ -5,10 +5,12 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 {
 	private readonly AppDbContext _context;
 	private readonly IConfiguration _configuration;
-    public GenericRepo(AppDbContext context, IConfiguration configuration)
+	private readonly IConfigHelper _helper;
+    public GenericRepo(AppDbContext context, IConfiguration configuration, IConfigHelper helper)
     {
 		_context = context;
 		_configuration = configuration;
+		_helper = helper;
     }
 
     public async Task CreateAsync(T entity)
@@ -33,13 +35,13 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 	public IEnumerable<T> GetAll(int page)
 	{
 		return _context.Set<T>().AsNoTracking()
-			.Skip((page - 1) * GetPageSize()).Take(GetPageSize()).ToList();
+			.Skip((page - 1) * _helper.GetPageSize()).Take(_helper.GetPageSize()).ToList();
 	}
 
 	public async Task<IReadOnlyList<T>> GetAllAsync(int page)
 	{
 		return await _context.Set<T>().AsNoTracking()
-			.Skip((page - 1) * GetPageSize()).Take(GetPageSize()).ToListAsync();
+			.Skip((page - 1) * _helper.GetPageSize()).Take(_helper.GetPageSize()).ToListAsync();
 	}
 
 	public async Task<IReadOnlyList<T>> GetAllWithIncludesAsync(int page, params Expression<Func<T, object>>[] includes)
@@ -49,7 +51,7 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 		{
 			query = query.Include(include);
 		}
-		return await query.Skip((page - 1) * GetPageSize()).Take(GetPageSize()).ToListAsync();
+		return await query.Skip((page - 1) * _helper.GetPageSize()).Take(_helper.GetPageSize()).ToListAsync();
 	}
 
 	public async Task<T> GetByIdAsync<TId>(TId id)
@@ -79,10 +81,5 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 		await SaveChangesAsync();
 	}
 
-	private int GetPageSize()
-	{
-		int.TryParse(_configuration["CustomConfiguration:PageSize"], out int pageSize);
-		return pageSize;
-	}
 	
 }

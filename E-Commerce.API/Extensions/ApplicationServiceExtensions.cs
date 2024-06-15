@@ -1,4 +1,5 @@
-﻿namespace E_Commerce.API.Extensions;
+﻿
+namespace E_Commerce.API.Extensions;
 
 public static class ApplicationServiceExtensions
 {
@@ -21,6 +22,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<ICategoryRepo, CategoryRepo>();
 		services.AddScoped<IImageRepo, ImageRepo>();
 		services.AddScoped<IBrandRepo, BrandRepo>();
+		services.AddScoped<IConfigHelper, ConfigHelper>();
 		services.AddScoped<IBrandService, BrandService>();
 		services.AddScoped<ICategoryService, CategoryService>();
 		services.AddScoped<IDeliveryMethodService, DeliveryMethodService>();
@@ -65,7 +67,7 @@ public static class ApplicationServiceExtensions
 			option.RequireHttpsMetadata = false;
 
 			//> create the Key, will call function later
-			var theSecretKey = configuration["JWT:ApiSecretKey"];
+			var theSecretKey = configuration["JWT:TokenKey"];
 			var keyInBytes = Encoding.ASCII.GetBytes(theSecretKey);
 			var key = new SymmetricSecurityKey(keyInBytes);
 
@@ -83,8 +85,41 @@ public static class ApplicationServiceExtensions
 		//> authorization service
 		services.AddAuthorization(options =>
 		{
-			options.AddPolicy("AdminRole", builder => builder.RequireClaim(ClaimTypes.Role, "Admin"));
-			options.AddPolicy("UserRole", builder => builder.RequireClaim(ClaimTypes.Role, "User"));
+			options.AddPolicy("SuperAdmin", builder => builder.RequireClaim(ClaimTypes.Role, "SuperAdmin"));
+			options.AddPolicy("Admin", builder => builder.RequireClaim(ClaimTypes.Role, "Admin", "SuperAdmin"));
+			options.AddPolicy("User", builder => builder.RequireClaim(ClaimTypes.Role, "User", "Admin", "SuperAdmin"));
+		});
+
+		#endregion
+
+		#region Swagger
+
+		services.AddSwaggerGen(setup =>
+		{
+			// Include 'SecurityScheme' to use JWT Authentication
+			var jwtSecurityScheme = new OpenApiSecurityScheme
+			{
+				BearerFormat = "JWT",
+				Name = "JWT Authentication",
+				In = ParameterLocation.Header,
+				Type = SecuritySchemeType.Http,
+				Scheme = JwtBearerDefaults.AuthenticationScheme,
+				Description = "Put **_ONLY_** your JWT Bearer token on textbox below!",
+
+				Reference = new OpenApiReference
+				{
+					Id = JwtBearerDefaults.AuthenticationScheme,
+					Type = ReferenceType.SecurityScheme
+				}
+			};
+
+			setup.AddSecurityDefinition(jwtSecurityScheme.Reference.Id, jwtSecurityScheme);
+
+			setup.AddSecurityRequirement(new OpenApiSecurityRequirement
+			{
+				{ jwtSecurityScheme, Array.Empty<string>() }
+			});
+
 		});
 
 		#endregion

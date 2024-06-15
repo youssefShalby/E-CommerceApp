@@ -15,6 +15,7 @@ public class BrandsController : ControllerBase
     }
 
     [HttpGet("All/{pageNumber}")]
+	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int page)
     {
         var result = await _brandService.GetAllAsync(page);
@@ -25,7 +26,18 @@ public class BrandsController : ControllerBase
         return Ok(result);
     }
 
-	[HttpGet("In/All/{pageNumber}")]
+	[HttpPost("All/filter")]
+	public async Task<ActionResult> GetAllWithFilter(BrandQueryHandler queryHandler)
+	{
+		var result = await _brandService.GetAllWithFilterAsync(queryHandler);
+		if (result is null)
+		{
+			return BadRequest(new ApiResponse(404));
+		}
+		return Ok(result);
+	}
+
+	[HttpGet("AllIn/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var result = await _brandService.GetAllWithIncludes(page, B => B.Products);
@@ -37,6 +49,7 @@ public class BrandsController : ControllerBase
 	}
 
     [HttpGet("{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
 		var result = await _brandService.GetByIdAsync(id);
@@ -48,6 +61,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpGet("In/{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
 		var result = await _brandService.GetByIdWithIncludes(id);
@@ -59,6 +73,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> CreateBrand(CreateBrandDto model)
 	{
 		var result = await _brandService.CreateAsync(model);
@@ -70,6 +85,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> UpdateBrand([FromRoute]Guid id, [FromBody]UpdateBrandDto model)
 	{
 		var result = await _brandService.UpdateAsync(id, model);
@@ -81,6 +97,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> DeleteBrand([FromRoute] Guid id)
 	{
 		var result = await _brandService.DeleteAsync(id);

@@ -1,6 +1,7 @@
 ﻿
 
 
+
 namespace E_Commerce.BLL.Services;
 
 public class CategoryService : ICategoryService
@@ -47,6 +48,17 @@ public class CategoryService : ICategoryService
 	public async Task<IReadOnlyList<GetCategoryDto>> GetAllAsync(int page)
 	{
 		var categories = await _categoryRepo.GetAllAsync(page);
+		return categories.Select(category => new GetCategoryDto
+		{
+			Name = category.Name,
+			CreatedAt = category.CreatedAt
+
+		}).ToList();
+	}
+
+	public async Task<IReadOnlyList<GetCategoryDto>> GetAllWithFilterAsync(CategoryQueryHandler queryHandler)
+	{
+		var categories = await _categoryRepo.GetAllWithQueryAsync(queryHandler);
 		return categories.Select(category => new GetCategoryDto
 		{
 			Name = category.Name,

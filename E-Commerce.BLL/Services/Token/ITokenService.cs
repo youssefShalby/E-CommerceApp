@@ -14,5 +14,5 @@ public interface ITokenService
 	DateTime GetExpirationTimeOfToken(string token);
 	bool IsTokenExpired(string token);
 	Task<string> CreateLoginToken(ApplicationUser user);
-	int SaveTokenInCookie(string token);
+	int SaveTokenInCookie(string token, string id);
 }

@@ -37,6 +37,7 @@ public class DeliveryMethodsController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
+	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
 		var result = await _deliveryMethodService.GetByIdAsync(id);
@@ -48,6 +49,7 @@ public class DeliveryMethodsController : ControllerBase
 	}
 
 	[HttpGet("In/{id}")]
+	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
 		var result = await _deliveryMethodService.GetByIdWithIncludesAsync(id);
@@ -59,6 +61,7 @@ public class DeliveryMethodsController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> CreateDeliverMethod(CreateDeliveryMethodDto model)
 	{
 		var result = await _deliveryMethodService.CreateAsync(model);
@@ -70,6 +73,7 @@ public class DeliveryMethodsController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
+	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> UpdateDeliverMethod([FromRoute] Guid id, [FromBody] UpdateDeliverMethodDto model)
 	{
 		var result = await _deliveryMethodService.UpdateAsync(id, model);
@@ -81,6 +85,7 @@ public class DeliveryMethodsController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
+	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> DeleteDeliverMethod([FromRoute] Guid id)
 	{
 		var result = await _deliveryMethodService.DeleteAsync(id);

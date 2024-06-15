@@ -23,6 +23,7 @@ public class PaymentsController : ControllerBase
     }
 
     [HttpPost("{basketId}")]
+    [Authorize]
     public async Task<ActionResult> CreateOrUpdatePaymentIntent(string basketId)
     {
         var result = await _paymentService.CreateOrUpdatePaymentIntentAsync(basketId);
@@ -41,6 +42,11 @@ public class PaymentsController : ControllerBase
 
         //> get stripe signature from the request header
         var stripeSignature = Request.Headers["Stripe-Signature"];
+
+        if (string.IsNullOrEmpty(stripeSignature) || string.IsNullOrEmpty(json))
+        {
+            return NoContent();
+        }
 
         var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature, _webHooks);
 

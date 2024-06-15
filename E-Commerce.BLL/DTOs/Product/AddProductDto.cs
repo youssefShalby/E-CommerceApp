@@ -16,6 +16,7 @@ public class AddProductDto
 	public decimal OfferPrice { get; set; }
 	public Guid CategoryId { get; set; }
 	public Guid BrandId { get; set; }
+	public string UserId { get; set; } = string.Empty;
 	public IEnumerable<string> ImagesUrl { get; set; } = new List<string>();
 
 }

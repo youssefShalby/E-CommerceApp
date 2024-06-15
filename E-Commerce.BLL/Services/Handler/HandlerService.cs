@@ -59,10 +59,16 @@ public class HandlerService : IHandlerService
 			AppUserId = AppUser.Id,
 		};
 
+		if (mainRole == "Admin" || mainRole == "SuperAdmin")
+		{
+			AppUser.IsAdmin = true;
+		}
+
 		List<Claim> UserClaims = new List<Claim>(5)
 		{
 			new Claim(ClaimTypes.NameIdentifier, AppUser.Id),
 			new Claim(ClaimTypes.Name, AppUser.UserName),
+			new Claim(ClaimTypes.Email, AppUser.Email),
 			new Claim(ClaimTypes.Role, mainRole)
 		};
 

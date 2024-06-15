@@ -46,6 +46,7 @@ public class ProductMapper
 			CategoryId = model.CategoryId,
 			BrandId = model.BrandId,
 			CreatedAt = model.CreatedAt,
+			UserId = model.UserId,
 		};
 
 		newProduct.Images = model.ImagesUrl.Select(img => new Image

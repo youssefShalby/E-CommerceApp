@@ -1,6 +1,7 @@
 ﻿
 
 
+
 namespace E_Commerce.BLL.Services;
 
 public class BrandService : IBrandService
@@ -66,6 +67,29 @@ public class BrandService : IBrandService
 			}).ToList();
 		}
 		catch(Exception)
+		{
+			return null!;
+		}
+	}
+
+	public async Task<IReadOnlyList<GetBrandDto>> GetAllWithFilterAsync(BrandQueryHandler queryHandler)
+	{
+		var brands = await _brandRepo.GetAllWithQueryAsync(queryHandler);
+		if (brands is null)
+		{
+			return null!;
+		}
+
+		try
+		{
+			return brands.Select(brand => new GetBrandDto
+			{
+				CreatedAt = brand.CreatedAt,
+				Name = brand.Name
+
+			}).ToList();
+		}
+		catch (Exception)
 		{
 			return null!;
 		}

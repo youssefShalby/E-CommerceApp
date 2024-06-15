@@ -12,4 +12,9 @@ public class Handler
 		}
 		return result;
 	}
+
+	public static string GetFirstFiveChardsFromId(string id)
+	{
+		return id.Substring(0, 5);
+	}
 }

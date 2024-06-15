@@ -5,6 +5,7 @@ namespace E_Commerce.BLL.Services;
 public class UserService : IUserService
 {
 	private readonly RoleManager<IdentityRole> _roleManager;
+
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly IHandlerService _handlerService;
 	private readonly ITokenService _tokenService;
@@ -32,6 +33,17 @@ public class UserService : IUserService
 			return new CommonResponse("cannot create user because the 'User' role is not found, create the 'User' role first and then create user", false);
 		}
 		return await _handlerService.RegisterHandlerAsync(model, UserRole.Name, UserRole.Name);
+	}
+
+	public async Task<CommonResponse> RegisterSuperAdminAsync(string key, RegisterUserDto model)
+	{
+		var SuperAdminRole = await _roleManager.FindByNameAsync("SuperAdmin");
+		var AdminRole = await _roleManager.FindByNameAsync("Admin");
+		if (SuperAdminRole is null || AdminRole is null)
+		{
+			return new CommonResponse("cannot create super admin right now because the admin roles not founded", false);
+		}
+		return await _handlerService.RegisterHandlerAsync(model, SuperAdminRole.Name, SuperAdminRole.Name, AdminRole.Name);
 	}
 
 	public async Task<CommonResponse> ConfirmEmailAsync(VerificationCodeDto model)
@@ -87,7 +99,7 @@ public class UserService : IUserService
 		}
 
 		//> save login token in the cookie
-		int added = _tokenService.SaveTokenInCookie(loginToken);
+		int added = _tokenService.SaveTokenInCookie(loginToken, user.Id);
 		if(added == -1)
 		{
 			return new CommonResponse("email confirmed success, but cannot loging you in automatically, you can login now", true);
@@ -97,14 +109,6 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> LoginAsync(LoginDto model)
 	{
-		//> check if there is login token in cookie or not
-		var httpContext = _httpContextAccessor.HttpContext;
-		var checkLoginToken = httpContext?.Request.Cookies.FirstOrDefault(TK => TK.Key == "loginToken");
-		if (checkLoginToken?.Value is not null)
-		{
-			return new CommonResponse("user already loged in", false);
-		}
-
 		//> check email is true and exist
 		ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
 		if(user is null)
@@ -112,8 +116,19 @@ public class UserService : IUserService
 			return new CommonResponse("Email Not Found..!", false);
 		}
 
+		//> get last five chars from the Id
+		string theCheckId = Handler.GetFirstFiveChardsFromId(user.Id);
+
+		//> check if there is login token in cookie or not
+		var httpContext = _httpContextAccessor.HttpContext;
+		var checkLoginToken = httpContext?.Request.Cookies.FirstOrDefault(TK => TK.Key == $"loginToken-{theCheckId}");
+		if (checkLoginToken?.Value is not null)
+		{
+			return new CommonResponse("user already loged in", false);
+		}
+
 		//> check email is confirmed or not, if not return id to confirm it
-		if(!user.EmailConfirmed)
+		if (!user.EmailConfirmed)
 		{
 			var verificationModel = new VerificationCodeDto(user.Id);
 			return new CommonResponse("email not confirmed, please confirm it then login", false, null!, verificationModel.UserId);
@@ -139,7 +154,7 @@ public class UserService : IUserService
 		DateTime expireTime = _tokenService.GetExpirationTimeOfToken(token);
 
 		//> save the token in the cookie
-		int added = _tokenService.SaveTokenInCookie(token);
+		int added = _tokenService.SaveTokenInCookie(token, user.Id);
 		if(added == -1)
 		{
 			return new CommonResponse("login success, but cannot save data in your browser for now", true);
@@ -201,14 +216,19 @@ public class UserService : IUserService
 		
 	}
 
-	public async Task<CommonResponse> LogoutAsync()
+	public async Task<CommonResponse> LogoutAsync(string email)
 	{
-		//> SignOutAsync => will clear authentication cookies or token
-		await _signInManager.SignOutAsync();
+		var user = await _userManager.FindByEmailAsync(email);
+		if(user is null)
+		{
+			return new CommonResponse("user not founded..!!", false);
+		}
+
+		var theCookieId = Handler.GetFirstFiveChardsFromId(user.Id);
 
 		//> delete the loginToken
 		var httpContext = _httpContextAccessor.HttpContext;
-		httpContext?.Response.Cookies.Delete("loginToken");
+		httpContext?.Response.Cookies.Delete($"loginToken-{theCookieId}");
 
 		return new CommonResponse("Signed out success", true);
 	}
@@ -240,7 +260,7 @@ public class UserService : IUserService
 		}
 
 		//> if remove success, delete cookies and tokens from browser
-		await LogoutAsync();
+		await LogoutAsync(user.Email);
 
 		return new CommonResponse("Account Deleted.. bye bye", true);
 	}
@@ -278,4 +298,109 @@ public class UserService : IUserService
 
 	}
 
+	public async Task<ApplicationUser> GetUserByEmailAsync(string email)
+	{
+		var user = await _userManager.FindByEmailAsync(email);
+		if(user is null)
+		{
+			return null!;
+		}
+		return user;
+	}
+
+	public async Task<CommonResponse> UpdateUserAddressAsync(string email, AddressDto model)
+	{
+		var user = await _userManager.FindByEmailAsync(email);
+		if (user is null)
+		{
+			return new CommonResponse("user not founded..!!", false);
+		}
+		
+		user.Address = AddressMapper.ToAddressModel(model);
+
+		var result = await _userManager.UpdateAsync(user);
+		if (!result.Succeeded)
+		{
+			return new CommonResponse("cannot update address right now, try again later..!", false);
+		}
+		return new CommonResponse("address updated..!!", true);
+	}
+
+	public async Task<CommonResponse> UpdateUserInfoAsync(string email, UpdateAccountDto model)
+	{
+		var user = await _userManager.FindByEmailAsync(email);
+		if (user is null)
+		{
+			return new CommonResponse("user not founded..!!", false);
+		}
+
+		var isUserNameExist = await _userManager.FindByNameAsync(user.UserName);
+		if(isUserNameExist is null)
+		{
+			return new CommonResponse("user name already taken..!!", false);
+		}
+
+		user.UserName = model.UserName;
+		user.DisplayName = model.DisplayName;
+
+		var result = await _userManager.UpdateAsync(user);
+		if (!result.Succeeded)
+		{
+			return new CommonResponse("cannot update user right now, try again later..!", false);
+		}
+
+		return new CommonResponse("user info updated..!!", true);
+	}
+
+	public async Task<CommonResponse> MarkUserAsAdminAsync(MarkUserAsAdminDto model)
+	{
+		var user = await _userManager.FindByEmailAsync(model.Email);
+		if (user is null)
+		{
+			return new CommonResponse("user not founded..!!", false);
+		}
+
+		if (await _userManager.IsInRoleAsync(user, "Admin"))
+		{
+			return new CommonResponse("the User already have 'Admin' role..!!", false);
+		}
+
+		if (model.IsAdmin)
+		{
+			var cliams = await _userManager.GetClaimsAsync(user);
+			var oldRoleClaim = cliams.FirstOrDefault(C => C.Type == ClaimTypes.Role);
+			
+			var resultOfRmove = await _userManager.RemoveClaimAsync(user, oldRoleClaim);
+			if (!resultOfRmove.Succeeded)
+			{
+				return new CommonResponse("cannot remove old role..!!", false);
+			}
+
+			var resultOfAddClaim  = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+			if (!resultOfAddClaim.Succeeded)
+			{
+				return new CommonResponse("cannot update the claim of user..!!", false);
+			}
+
+			var resutlOfAddRole = await _userManager.AddToRoleAsync(user, "Admin");
+			if (!resutlOfAddRole.Succeeded)
+			{
+				return new CommonResponse("cannot assign new role..!!", false);
+			}
+
+			//> mark user as admin
+			user.IsAdmin = true;
+
+			var result = await _userManager.UpdateAsync(user);
+			if (!result.Succeeded)
+			{
+				return new CommonResponse("cannot assign the new role for the user right now, try again later..!", false);
+			}
+
+			return new CommonResponse("the role assigned to the user..!!", true);
+		}
+		return new CommonResponse("the admin role not assigned to the user..!!", false);
+
+
+	}
 }

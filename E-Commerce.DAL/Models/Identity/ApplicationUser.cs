@@ -8,5 +8,6 @@ public class ApplicationUser : IdentityUser
     public bool IsAdmin { get; set; }
     public string? ConfirmationCodeToken { get; set; }
     public Address? Address { get; set; }
+    public ICollection<Product>? Products { get; set; }
 
 }

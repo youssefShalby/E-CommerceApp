@@ -14,15 +14,18 @@ public class ProductTypeConfiguration : IEntityTypeConfiguration<Product>
 		modelBuilder.Property(P => P.OriginalPrice).IsRequired().HasColumnType("decimal(18,2)");
 		modelBuilder.Property(P => P.OfferPrice).IsRequired().HasColumnType("decimal(18,2)");
 
+
 		//> make the foregin keys nullable
 		//-- modelBuilder.Property(P => P.BrandId).IsRequired(false);
 		//-- modelBuilder.Property(P => P.CategoryId).IsRequired(false);
+		//-- modelBuilder.Property(O => O.UserId).IsRequired(false);
 
 		modelBuilder
 			.HasMany(P => P.Images)
 			.WithOne()
 			.HasForeignKey(I => I.ProductId)
 			.OnDelete(DeleteBehavior.Cascade);
+
 
 		//> Add Seeding data
 		modelBuilder.HasData(JsonHelper.GetSeedData<Product>("../E-Commerce.DAL/SeedData/products.json"));

@@ -1,5 +1,7 @@
 ﻿
 
+using StackExchange.Redis;
+
 namespace E_Commerce.BLL.Services;
 
 public class TokenService : ITokenService
@@ -20,6 +22,7 @@ public class TokenService : ITokenService
 			audience: _configuration["JWT:Audiences"],
 			notBefore: DateTime.Now,
 			expires: expireationTime,
+			claims: claims,
 			signingCredentials: GetCredentials()
 			);
 	}
@@ -85,7 +88,7 @@ public class TokenService : ITokenService
 		return new JwtSecurityTokenHandler().WriteToken(generateToken);
 	}
 
-	public int SaveTokenInCookie(string token)
+	public int SaveTokenInCookie(string token, string id)
 	{
 		//> get HttpContext from the Service
 		var httpContext = _httpContextAccessor.HttpContext;
@@ -97,7 +100,9 @@ public class TokenService : ITokenService
 			Expires = GetExpirationTimeOfToken(token)
 		};
 
-		httpContext.Response.Cookies.Append("loginToken", token, cookieOption);
+		string theId = Handler.GetFirstFiveChardsFromId(id);
+
+		httpContext.Response.Cookies.Append($"loginToken-{theId}", token, cookieOption);
 		return 0;
 	}
 }

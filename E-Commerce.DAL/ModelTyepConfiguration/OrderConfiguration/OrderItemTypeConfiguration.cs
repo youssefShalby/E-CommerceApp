@@ -8,6 +8,5 @@ public class OrderItemTypeConfiguration : IEntityTypeConfiguration<OrderItem>
 	{
 		modelBuilder.OwnsOne(OI => OI.ItemOrdered, OI => { OI.WithOwner(); });
 		modelBuilder.Property(OI => OI.Price).HasColumnType("decimal(18,2)");
-
 	}
 }

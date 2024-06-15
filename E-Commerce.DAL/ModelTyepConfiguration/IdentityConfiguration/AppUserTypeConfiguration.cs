@@ -17,5 +17,11 @@ internal class AppUserTypeConfiguration : IEntityTypeConfiguration<ApplicationUs
 			.WithOne(A => A.AppUser)
 			.HasForeignKey<Address>(A => A.AppUserId)
 			.OnDelete(DeleteBehavior.Cascade);
+
+		modelBuilder
+			.HasMany(U => U.Products)
+			.WithOne(P => P.User)
+			.HasForeignKey(P => P.UserId)
+			.OnDelete(DeleteBehavior.Cascade);
 	}
 }

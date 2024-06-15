@@ -15,6 +15,7 @@ public class CategoriesController : ControllerBase
     }
 
 	[HttpGet("All/{pageNumber}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAll(int page)
 	{
 		var result = await _categoryService.GetAllAsync(page);
@@ -25,7 +26,18 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/All/{pageNumber}")]
+	[HttpPost("All/filter")]
+	public async Task<ActionResult> GetAllWithFilter(CategoryQueryHandler queryHandler)
+	{
+		var result = await _categoryService.GetAllWithFilterAsync(queryHandler);
+		if (result is null)
+		{
+			return BadRequest(new ApiResponse(404));
+		}
+		return Ok(result);
+	}
+
+	[HttpGet("AllIn/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var result = await _categoryService.GetAllWithIncludesAsync(page, C => C.Products);
@@ -37,6 +49,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
 		var result = await _categoryService.GetByIdAsync(id);
@@ -48,6 +61,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("In/{id}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{
 		var result = await _categoryService.GetByIdWithIncludesAsync(id);
@@ -59,6 +73,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize]
 	public async Task<ActionResult> CreateCategory(CreateCategoryDto model)
 	{
 		var result = await _categoryService.CreateAsync(model);
@@ -70,6 +85,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
+	[Authorize]
 	public async Task<ActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDto model)
 	{
 		var result = await _categoryService.UpdateAsync(id, model);
@@ -81,6 +97,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
+	[Authorize]
 	public async Task<ActionResult> DeleteCategory([FromRoute] Guid id)
 	{
 		var result = await _categoryService.DeleteAsync(id);

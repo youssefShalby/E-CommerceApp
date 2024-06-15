@@ -20,5 +20,6 @@ public class OrderTypeConfiguration : IEntityTypeConfiguration<Order>
 
 		modelBuilder.HasOne(O => O.DeliveryMethod).WithMany(DM => DM.Orders).HasForeignKey(O => O.DeliveryMethodId)
 			.OnDelete(DeleteBehavior.Cascade);
+
 	}
 }

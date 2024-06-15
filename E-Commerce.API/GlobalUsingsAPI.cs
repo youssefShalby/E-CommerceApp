@@ -14,4 +14,10 @@ global using Microsoft.AspNetCore.Identity;
 global using Microsoft.IdentityModel.Tokens;
 global using System.Security.Claims;
 global using System.Text;
+global using Microsoft.AspNetCore.Authorization;
+global using E_Commerce.BLL.Mappers;
+global using E_Commerce.DAL.Query;
+global using E_Commerce.DAL.Helpers;
+global using Microsoft.OpenApi.Models;
+
 

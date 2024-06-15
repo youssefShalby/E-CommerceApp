@@ -7,7 +7,7 @@ public class DeliveryMethodRepo : GenericRepo<DeliveryMethod>, IDeliveryMethodRe
 {
 	private readonly AppDbContext _context;
 	private readonly IConfiguration _configuration;
-	public DeliveryMethodRepo(AppDbContext context, IConfiguration configuration) : base(context, configuration)
+	public DeliveryMethodRepo(AppDbContext context, IConfiguration configuration, IConfigHelper helper) : base(context, configuration, helper)
 	{
 		_context = context;
 		_configuration = configuration;

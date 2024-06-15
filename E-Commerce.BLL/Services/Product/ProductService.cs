@@ -65,6 +65,42 @@ public class ProductService : IProductService
 		}
 	}
 
+	public async Task<IReadOnlyList<GetProductDto>> GetAllCreatedProductsByUserAsync(GetCreatedProductByUser model)
+	{
+		var products = await _productRepo.GetAllCreatedProductsByUserAsync(model.UserId, model.PageNumber);
+		if (products is null)
+		{
+			return null!;
+		}
+
+		try
+		{
+			return products.Select(product => ProductMapper.ToGetDto(product)).ToList();
+		}
+		catch (Exception)
+		{
+			return null!;
+		}
+	}
+
+	public async Task<IReadOnlyList<GetProductDto>> GetAllWithFilterAsync(ProductQueryHandler queryHandler)
+	{
+		var products = await _productRepo.GetAllWithQueryAsync(queryHandler);
+		if (products is null)
+		{
+			return null!;
+		}
+
+		try
+		{
+			return products.Select(product => ProductMapper.ToGetDto(product)).ToList();
+		}
+		catch (Exception)
+		{
+			return null!;
+		}
+	}
+
 	public async Task<IReadOnlyList<GetProductWithIncludesDto>> GetAllWithIncludesAsync(int page, params Expression<Func<Product, object>>[] includes)
 	{
 		var products = await _productRepo.GetAllWithIncludesAsync(page, includes);

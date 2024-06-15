@@ -12,6 +12,7 @@ public class RolesController : ControllerBase
 	}
 
 	[HttpPost]
+	[Authorize(Policy = "SuperAdmin")]
 	public async Task<ActionResult> AddRole(AddRoleDto role)
 	{
 		var result = await _roleService.CreateRole(role);
@@ -23,6 +24,7 @@ public class RolesController : ControllerBase
 	}
 
 	[HttpDelete("{name:alpha}")]
+	[Authorize(Policy = "SuperAdmin")]
 	public async Task<ActionResult> RemoveRole(string name)
 	{
 		var result = await _roleService.DeleteRole(name);

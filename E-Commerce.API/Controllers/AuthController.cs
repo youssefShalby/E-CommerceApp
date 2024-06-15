@@ -1,5 +1,6 @@
 ﻿
 
+
 namespace E_Commerce.API.Controllers;
 
 [Route("api/[controller]")]
@@ -7,15 +8,38 @@ namespace E_Commerce.API.Controllers;
 public class AuthController : ControllerBase
 {
 	private readonly IUserService _userService;
-    public AuthController(IUserService userService)
+	private readonly IConfiguration _configuration;
+    public AuthController(IUserService userService, IConfiguration configuration)
     {
 		_userService = userService;
+		_configuration = configuration;
     }
 
 	[HttpPost("Register")]
 	public async Task<ActionResult> Register(RegisterUserDto model)
 	{
 		var result = await _userService.RegisterAsync(model);
+
+		if (!result.IsSuccessed)
+		{
+			return BadRequest(result);
+		}
+
+		string userId = (string)result.AdditionalInfo;
+
+		//> send the UserId in Body of Response
+		return CreatedAtAction(nameof(ConfirmEmail), new { UserId = userId });
+	}
+	
+	[HttpPost("Register/SA")]
+	public async Task<ActionResult> RegisterSuperAdmin([FromHeader]string key, [FromBody] RegisterUserDto model)
+	{
+		if(key != _configuration["Identity:SuperAdminKey"])
+		{
+			return StatusCode(403, "you not allowed to use this endpoint...!!");
+		}
+
+		var result = await _userService.RegisterSuperAdminAsync(key, model);
 
 		if (!result.IsSuccessed)
 		{
@@ -80,13 +104,15 @@ public class AuthController : ControllerBase
 		return Ok(result); //> 200
 	}
 
-	[HttpPost("Logout")]
-	public async Task<ActionResult> Logout()
+	[HttpPost("Logout/{email}")]
+	[Authorize]
+	public async Task<ActionResult> Logout(string email)
 	{
-		return Ok(await _userService.LogoutAsync());
+		return Ok(await _userService.LogoutAsync(email));
 	}
 
 	[HttpPost("RomveAcc")]
+	[Authorize]
 	public async Task<ActionResult> ReomveAccount(RemoveAccountDto model)
 	{
 		var result = await _userService.RemoveAccountAsync(model);
@@ -107,4 +133,5 @@ public class AuthController : ControllerBase
 		}
 		return Ok(result); //> 200
 	}
+
 }
