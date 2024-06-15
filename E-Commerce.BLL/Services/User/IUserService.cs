@@ -1,4 +1,5 @@
 ﻿
+
 namespace E_Commerce.BLL.Services;
 
 public interface IUserService
@@ -13,7 +14,7 @@ public interface IUserService
 	Task<CommonResponse> RemoveAccountAsync(RemoveAccountDto model);
 	Task<CommonResponse> ResendConfirmationEmail(string email);
 	Task<ApplicationUser> GetUserByEmailAsync(string email);
-	Task<CommonResponse> UpdateUserAddressAsync(string email, AddressDto model);
+	Task<CommonResponse> UpdateUserAddressAsync(string email, IdentityAddressDto model);
 	Task<CommonResponse> UpdateUserInfoAsync(string email, UpdateAccountDto model);
 	Task<CommonResponse> MarkUserAsAdminAsync(MarkUserAsAdminDto model);
 }

@@ -1,12 +1,13 @@
 ﻿
 
+
 namespace E_Commerce.BLL.Mappers;
 
 public class AddressMapper
 {
-	public static AddressDto ToAddressDto(Address address)
+	public static IdentityAddressDto ToAddressDto(Address address)
 	{
-		return new AddressDto
+		return new IdentityAddressDto
 		{
 			City = address.City,
 			FirstName = address.FirstName,
@@ -17,7 +18,7 @@ public class AddressMapper
 		};
 	}
 
-	public static Address ToAddressModel(AddressDto address)
+	public static Address ToAddressModel(IdentityAddressDto address)
 	{
 		return new Address
 		{

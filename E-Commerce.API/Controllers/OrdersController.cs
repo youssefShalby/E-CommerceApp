@@ -103,6 +103,14 @@ public class OrdersController : ControllerBase
 	[Authorize]
 	public async Task<ActionResult> UpdateOrder(Guid id, UpdateOrderDto model)
 	{
+		var userEmail = User.Claims.FirstOrDefault(C => C.Type == ClaimTypes.Email)?.Value ?? "NA";
+		if (userEmail == "NA")
+		{
+			return BadRequest("there is wrong..!!");
+		}
+
+		model.BuyerEmail = userEmail;
+
 		var result = await _orderService.UpdateAsync(id, model);
 		if (!result.IsSuccessed)
 		{

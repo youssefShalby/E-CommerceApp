@@ -3,6 +3,8 @@ namespace E_Commerce.BLL.DTOs;
 
 public class CreateOrderDto
 {
+
+	[JsonIgnore]
 	public string BuyerEmail { get; set; } = string.Empty;
     public string BasketId { get; set; } = string.Empty;
     public Guid DeliveryMethodId { get; set; }

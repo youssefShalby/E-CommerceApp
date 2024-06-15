@@ -17,5 +17,6 @@ global using E_Commerce.BLL.IdentityHelper;
 global using Microsoft.AspNetCore.WebUtilities;
 global using E_Commerce.DAL.Query;
 global using Microsoft.Extensions.Logging;
+global using System.Text.Json.Serialization;
 
 

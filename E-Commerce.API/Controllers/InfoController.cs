@@ -16,7 +16,7 @@ public class InfoController : ControllerBase
 
 	[HttpGet("Address")]
 	[Authorize]
-	public async Task<ActionResult<AddressDto>> GetAddress()
+	public async Task<ActionResult<IdentityAddressDto>> GetAddress()
 	{
 		var userEmail = User.Claims.FirstOrDefault(C => C.Type == ClaimTypes.Email)?.Value ?? null!;
 		if (userEmail is null)
@@ -31,7 +31,7 @@ public class InfoController : ControllerBase
 
 	[HttpPut("Address")]
 	[Authorize]
-	public async Task<ActionResult> UpdateAddress(AddressDto model)
+	public async Task<ActionResult> UpdateAddress(IdentityAddressDto model)
 	{
 		var userEmail = User.Claims.FirstOrDefault(C => C.Type == ClaimTypes.Email)?.Value ?? null!;
 		if (userEmail is null)

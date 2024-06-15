@@ -1,5 +1,6 @@
 ﻿
 
+
 namespace E_Commerce.BLL.Services;
 
 public class UserService : IUserService
@@ -303,7 +304,7 @@ public class UserService : IUserService
 		return user;
 	}
 
-	public async Task<CommonResponse> UpdateUserAddressAsync(string email, AddressDto model)
+	public async Task<CommonResponse> UpdateUserAddressAsync(string email, IdentityAddressDto model)
 	{
 		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if (user is null)

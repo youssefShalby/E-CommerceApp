@@ -6,12 +6,16 @@ public class RegisterUserDto
 {
 	[Required(ErrorMessage = "enter your name")]
 	[MaxLength(100, ErrorMessage = "the name cannot be larger than 100 char")]
+	[MinLength(2, ErrorMessage = "the name cannot be less than 3 chars..!!")]
 	public string FullName { get; set; } = string.Empty;
 
-	[EmailAddress, Required]
+	[EmailAddress(ErrorMessage = "Email is not valid..!!")]
+	[Required(ErrorMessage = "the email is reqired...!!")]
 	public string Email { get; set; } = string.Empty;
 
-	[Required]
+	[Required(ErrorMessage = "The UserName is required...!!")]
+	[MaxLength(80, ErrorMessage = "Too long")]
+	[MinLength(2, ErrorMessage = "Too short")]
 	public string UserName { get; set; } = string.Empty;
 
 	[Required(ErrorMessage = "Must Assign Address")]
