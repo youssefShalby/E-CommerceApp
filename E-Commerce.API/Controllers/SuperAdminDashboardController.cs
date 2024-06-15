@@ -9,11 +9,9 @@ namespace E_Commerce.API.Controllers;
 public class SuperAdminDashboardController : ControllerBase
 {
 	private readonly IUserService _userService;
-	private readonly IConfiguration _configuration;
-	public SuperAdminDashboardController(IUserService userService, IConfiguration configuration)
+	public SuperAdminDashboardController(IUserService userService)
 	{
 		_userService = userService;
-		_configuration = configuration;
 	}
 
 	[HttpPost("markUserAsAdmin")]

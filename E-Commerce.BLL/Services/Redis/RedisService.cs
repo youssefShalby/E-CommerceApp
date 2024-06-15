@@ -1,25 +1,22 @@
 ﻿
 
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
-using System.Text.Json;
 
 namespace E_Commerce.BLL.Services;
 
 public class RedisService : IRedisService
 {
-	private readonly IConfiguration _configuration;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IDatabase _cacheDb;
 	private readonly ILogger<RedisService> _logger;
 
-	public RedisService(IConfiguration configuration, ILogger<RedisService> logger)
+	public RedisService(IUnitOfWork unitOfWork, ILogger<RedisService> logger)
     {
-		_configuration = configuration;
+		_unitOfWork = unitOfWork;
 		_logger = logger;
 		try
 		{
-			var redis = ConnectionMultiplexer.Connect(_configuration.GetConnectionString("Redis"));
+			var redis = ConnectionMultiplexer.Connect(_unitOfWork.Configuration.GetConnectionString("Redis"));
 			_cacheDb = redis.GetDatabase();
 		}
 		catch(Exception ex)

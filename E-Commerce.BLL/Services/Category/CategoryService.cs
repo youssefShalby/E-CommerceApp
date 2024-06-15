@@ -6,13 +6,13 @@ namespace E_Commerce.BLL.Services;
 
 public class CategoryService : ICategoryService
 {
-	private readonly ICategoryRepo _categoryRepo;
-    public CategoryService(ICategoryRepo categoryRepo)
-    {
-		_categoryRepo = categoryRepo;
-    }
+	private readonly IUnitOfWork _unitOfWork;
+	public CategoryService(IUnitOfWork unitOfWork)
+	{
+		_unitOfWork = unitOfWork;
+	}
 
-    public async Task<CommonResponse> CreateAsync(CreateCategoryDto model)
+	public async Task<CommonResponse> CreateAsync(CreateCategoryDto model)
 	{
 		Category newCategory = new Category
 		{
@@ -22,7 +22,7 @@ public class CategoryService : ICategoryService
 
 		try
 		{
-			await _categoryRepo.CreateAsync(newCategory);
+			await _unitOfWork.CategoryRepo.CreateAsync(newCategory);
 			return new CommonResponse("Category Created..!!", true);
 		}
 		catch(Exception ex)
@@ -36,7 +36,7 @@ public class CategoryService : ICategoryService
 	{
 		try
 		{
-			await _categoryRepo.DeleteAsync(id);
+			await _unitOfWork.CategoryRepo.DeleteAsync(id);
 			return new CommonResponse("Category Deleted..!!", true);
 		}
 		catch(Exception ex)
@@ -47,7 +47,7 @@ public class CategoryService : ICategoryService
 
 	public async Task<IReadOnlyList<GetCategoryDto>> GetAllAsync(int page)
 	{
-		var categories = await _categoryRepo.GetAllAsync(page);
+		var categories = await _unitOfWork.CategoryRepo.GetAllAsync(page);
 		return categories.Select(category => new GetCategoryDto
 		{
 			Name = category.Name,
@@ -58,7 +58,7 @@ public class CategoryService : ICategoryService
 
 	public async Task<IReadOnlyList<GetCategoryDto>> GetAllWithFilterAsync(CategoryQueryHandler queryHandler)
 	{
-		var categories = await _categoryRepo.GetAllWithQueryAsync(queryHandler);
+		var categories = await _unitOfWork.CategoryRepo.GetAllWithQueryAsync(queryHandler);
 		return categories.Select(category => new GetCategoryDto
 		{
 			Name = category.Name,
@@ -71,7 +71,7 @@ public class CategoryService : ICategoryService
 	{
 		try
 		{
-			var categories = await _categoryRepo.GetAllWithIncludesAsync(page, includes);
+			var categories = await _unitOfWork.CategoryRepo.GetAllWithIncludesAsync(page, includes);
 			return categories.Select(category => new GetCategoryWithIncludesDto
 			{
 				Name = category.Name,
@@ -88,7 +88,7 @@ public class CategoryService : ICategoryService
 
 	public async Task<GetCategoryDto> GetByIdAsync(Guid id)
 	{
-		var category = await _categoryRepo.GetByIdAsync(id);
+		var category = await _unitOfWork.CategoryRepo.GetByIdAsync(id);
 		if(category is null)
 		{
 			return null!;
@@ -102,7 +102,7 @@ public class CategoryService : ICategoryService
 
 	public async Task<GetCategoryWithIncludesDto> GetByIdWithIncludesAsync(Guid id)
 	{
-		var category = await _categoryRepo.GetByIdWithIncludesAsync(id);
+		var category = await _unitOfWork.CategoryRepo.GetByIdWithIncludesAsync(id);
 		if (category is null)
 		{
 			return null!;
@@ -117,7 +117,7 @@ public class CategoryService : ICategoryService
 
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateCategoryDto model)
 	{
-		var category = await _categoryRepo.GetByIdWithIncludesAsync(id);
+		var category = await _unitOfWork.CategoryRepo.GetByIdWithIncludesAsync(id);
 		if(category is null)
 		{
 			return new CommonResponse("cannot find the category..!!", false);
@@ -127,7 +127,7 @@ public class CategoryService : ICategoryService
 		{
 			category.IsDeleted = model.IsDeleted;
 			category.Name = model.Name;
-			await _categoryRepo.UpdateAsync(category);
+			await _unitOfWork.CategoryRepo.UpdateAsync(category);
 			return new CommonResponse("category updated..!!", true);
 		}
 		catch(Exception ex)

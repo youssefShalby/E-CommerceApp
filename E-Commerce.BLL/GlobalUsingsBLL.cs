@@ -1,4 +1,5 @@
 ﻿global using E_Commerce.BLL.DTOs;
+global using Order = E_Commerce.DAL.Models.Order;
 global using E_Commerce.DAL.Models;
 global using E_Commerce.DAL.Repositories;
 global using E_Commerce.BLL.Mappers;
@@ -15,6 +16,6 @@ global using System.Text.Json;
 global using E_Commerce.BLL.IdentityHelper;
 global using Microsoft.AspNetCore.WebUtilities;
 global using E_Commerce.DAL.Query;
-
+global using Microsoft.Extensions.Logging;
 
 

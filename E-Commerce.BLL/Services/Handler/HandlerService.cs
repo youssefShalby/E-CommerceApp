@@ -6,10 +6,10 @@ public class HandlerService : IHandlerService
 {
 	private readonly IEmailService _emailService;
 	private readonly ITokenService _tokenService;
-	private readonly UserManager<ApplicationUser> _userManager;
-	public HandlerService(UserManager<ApplicationUser> userManager, IEmailService emailService, ITokenService tokenService)
+	private readonly IUnitOfWork _unitOfWork;
+	public HandlerService(IUnitOfWork unitOfWork, IEmailService emailService, ITokenService tokenService)
 	{
-		_userManager = userManager;
+		_unitOfWork = unitOfWork;
 		_emailService = emailService;
 		_tokenService = tokenService;
 	}
@@ -29,8 +29,8 @@ public class HandlerService : IHandlerService
 
 		#region check user already exist or not
 
-		var IsUserNameExist = await _userManager.FindByNameAsync(model.Email);
-		var IsUserEmailExist = await _userManager.FindByEmailAsync(model.Email);
+		var IsUserNameExist = await _unitOfWork.UserManager.FindByNameAsync(model.Email);
+		var IsUserEmailExist = await _unitOfWork.UserManager.FindByEmailAsync(model.Email);
 
 		if(IsUserNameExist is not null)
 		{
@@ -100,7 +100,7 @@ public class HandlerService : IHandlerService
 
 		#region Create User - AddRole to User - Add Claims - Send ConfirmationEmail
 
-		IdentityResult result = await _userManager.CreateAsync(AppUser, model.Password);
+		IdentityResult result = await _unitOfWork.UserManager.CreateAsync(AppUser, model.Password);
 		if(!result.Succeeded)
 		{
 			var errors = GetErrorsOfIdentityResult(result.Errors);
@@ -108,8 +108,8 @@ public class HandlerService : IHandlerService
 		}
 
 		//> add the claims to claims table in Db & Add roles for the User
-		await _userManager.AddClaimsAsync(AppUser, UserClaims);
-		await _userManager.AddToRolesAsync(AppUser, otherRoles);
+		await _unitOfWork.UserManager.AddClaimsAsync(AppUser, UserClaims);
+		await _unitOfWork.UserManager.AddToRolesAsync(AppUser, otherRoles);
 
 		//> send confirmation email
 		var sended = await _emailService.SendEmailAsync(AppUser.Email, "Confirm Email", emailBody, true);

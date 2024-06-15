@@ -9,16 +9,13 @@ public class PaymentService : IPaymentService
 {
 	private readonly StripeSettings _stripeSettings;
 	private readonly IBasketService _basketService;
-	private readonly IDeliveryMethodRepo _deliveryMethodRepo;
-	private readonly IProductRepo _productRepo;
-	private readonly IOrderRepo _orderRepo;
-	public PaymentService(StripeSettings stripeSettings, IBasketService basketService, IDeliveryMethodRepo deliveryMethodRepo, IProductRepo productRepo, IOrderRepo orderRepo)
+	private readonly IUnitOfWork _unitOfWork;
+	public PaymentService(IUnitOfWork unitOfWork, StripeSettings stripeSettings, IBasketService basketService)
 	{
+		_unitOfWork = unitOfWork;
 		_stripeSettings = stripeSettings;
-		_deliveryMethodRepo = deliveryMethodRepo;
 		_basketService = basketService;
-		_productRepo = productRepo;
-		_orderRepo = orderRepo;
+
 	}
 
 	public async Task<CustomerBasket> CreateOrUpdatePaymentIntentAsync(string basketId)
@@ -31,7 +28,7 @@ public class PaymentService : IPaymentService
 		decimal shipePrice = 0m;
 		if (basket.DeliveryMethodId.HasValue)
 		{
-			var deliveryMethod = await _deliveryMethodRepo.GetByIdAsync(basket.DeliveryMethodId);
+			var deliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdAsync(basket.DeliveryMethodId);
 			shipePrice = deliveryMethod.Price;
 
 		}
@@ -39,7 +36,7 @@ public class PaymentService : IPaymentService
 		//> ensure the price of basket matches the original price
 		foreach (var item in basket.Items)
 		{
-			var productItem = await _productRepo.GetByIdAsync(item.Id);
+			var productItem = await _unitOfWork.ProductRepo.GetByIdAsync(item.Id);
 			if (item.Price != productItem.OfferPrice)
 			{
 				item.Price = productItem.OfferPrice;
@@ -96,27 +93,27 @@ public class PaymentService : IPaymentService
 
 	public async Task<Order> UpdateOrderWhenPaymentFailAsync(string paymentIntentId)
 	{
-		var order = await _orderRepo.GetByPaymentIntentWithIncludesAsync(paymentIntentId);
+		var order = await _unitOfWork.OrderRepo.GetByPaymentIntentWithIncludesAsync(paymentIntentId);
 		if (order is null)
 		{
 			return null!;
 		}
 
 		order.Status = OrderStatus.PaymentFaild;
-		await _orderRepo.UpdateAsync(order);
+		await _unitOfWork.OrderRepo.UpdateAsync(order);
 		return order;
 	}
 
 	public async Task<Order> UpdateOrderWhenPaymentSuccessAsync(string paymentIntentId)
 	{
-		var order = await _orderRepo.GetByPaymentIntentWithIncludesAsync(paymentIntentId);
+		var order = await _unitOfWork.OrderRepo.GetByPaymentIntentWithIncludesAsync(paymentIntentId);
 		if (order is null)
 		{
 			return null!;
 		}
 
 		order.Status = OrderStatus.PaymentReceived;
-		await _orderRepo.UpdateAsync(order);
+		await _unitOfWork.OrderRepo.UpdateAsync(order);
 		return order;
 	}
 }

@@ -4,30 +4,25 @@ namespace E_Commerce.BLL.Services;
 
 public class UserService : IUserService
 {
-	private readonly RoleManager<IdentityRole> _roleManager;
-
-	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IHandlerService _handlerService;
 	private readonly ITokenService _tokenService;
 	private readonly SignInManager<ApplicationUser> _signInManager;
-	private readonly IConfiguration _configuration;
 	private readonly IEmailService _emailService;
 	private readonly IHttpContextAccessor _httpContextAccessor;
-    public UserService(RoleManager<IdentityRole> roleManager, UserManager<ApplicationUser> userManager, IHandlerService handlerService, ITokenService tokenService, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+    public UserService(IUnitOfWork unitOfWork, IHandlerService handlerService, ITokenService tokenService, SignInManager<ApplicationUser> signInManager, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
     {
-		_roleManager = roleManager;
-		_userManager = userManager;
+		_unitOfWork = unitOfWork;
 		_handlerService = handlerService;
 		_tokenService = tokenService;
 		_signInManager = signInManager;
-		_configuration = configuration;
 		_emailService = emailService;
 		_httpContextAccessor = httpContextAccessor;
     }
 
 	public async Task<CommonResponse> RegisterAsync(RegisterUserDto model)
 	{
-		var UserRole = await _roleManager.FindByNameAsync("User");
+		var UserRole = await _unitOfWork.RoleManager.FindByNameAsync("User");
 		if(UserRole is null)
 		{
 			return new CommonResponse("cannot create user because the 'User' role is not found, create the 'User' role first and then create user", false);
@@ -37,8 +32,8 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> RegisterSuperAdminAsync(string key, RegisterUserDto model)
 	{
-		var SuperAdminRole = await _roleManager.FindByNameAsync("SuperAdmin");
-		var AdminRole = await _roleManager.FindByNameAsync("Admin");
+		var SuperAdminRole = await _unitOfWork.RoleManager.FindByNameAsync("SuperAdmin");
+		var AdminRole = await _unitOfWork.RoleManager.FindByNameAsync("Admin");
 		if (SuperAdminRole is null || AdminRole is null)
 		{
 			return new CommonResponse("cannot create super admin right now because the admin roles not founded", false);
@@ -48,7 +43,7 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> ConfirmEmailAsync(VerificationCodeDto model)
 	{
-		var user = await _userManager.FindByIdAsync(model.UserId);
+		var user = await _unitOfWork.UserManager.FindByIdAsync(model.UserId);
 		if(user is null)
 		{
 			return new CommonResponse("user not registered...", false);
@@ -80,7 +75,7 @@ public class UserService : IUserService
 		}
 
 		user.EmailConfirmed = true;
-		IdentityResult result = await _userManager.UpdateAsync(user);
+		IdentityResult result = await _unitOfWork.UserManager.UpdateAsync(user);
 		if(!result.Succeeded)
 		{
 			var errors = _handlerService.GetErrorsOfIdentityResult(result.Errors);
@@ -89,7 +84,7 @@ public class UserService : IUserService
 
 		user.ConfirmationCodeToken = null!;
 		user.ConfirmationCode = null!;
-		var updated = await _userManager.UpdateAsync(user);
+		var updated = await _unitOfWork.UserManager.UpdateAsync(user);
 
 		//> then, create login token and save it in the cookie after email confirmation process to make user loged in
 		string loginToken = await _tokenService.CreateLoginToken(user);
@@ -110,7 +105,7 @@ public class UserService : IUserService
 	public async Task<CommonResponse> LoginAsync(LoginDto model)
 	{
 		//> check email is true and exist
-		ApplicationUser user = await _userManager.FindByEmailAsync(model.Email);
+		ApplicationUser user = await _unitOfWork.UserManager.FindByEmailAsync(model.Email);
 		if(user is null)
 		{
 			return new CommonResponse("Email Not Found..!", false);
@@ -135,13 +130,13 @@ public class UserService : IUserService
 		}
 
 		//> check account is blocked or not
-		if(await _userManager.IsLockedOutAsync(user))
+		if(await _unitOfWork.UserManager.IsLockedOutAsync(user))
 		{
 			return new CommonResponse("your account is blocked for while, try again later", false);
 		}
 
 		//> above checks is right, check the password is right and valid or not
-		var IsAhthenticated = await _userManager.CheckPasswordAsync(user, model.Password);
+		var IsAhthenticated = await _unitOfWork.UserManager.CheckPasswordAsync(user, model.Password);
 
 		//> if password is not correct, increment number of tries and tell user pass is not correct
 		if(!IsAhthenticated)
@@ -168,19 +163,19 @@ public class UserService : IUserService
 	public async Task<CommonResponse> ForgetPasswordAsync(string email)
 	{
 		//> get the user by email and check user exist or not
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if(user is null)
 		{
 			return new CommonResponse("User Not Found...!!", false);
 		}
 
-		var generateToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+		var generateToken = await _unitOfWork.UserManager.GeneratePasswordResetTokenAsync(user);
 
 		//> clear token from special chars
 		var tokenInBytes = Encoding.UTF8.GetBytes(generateToken);
 		var token = WebEncoders.Base64UrlEncode(tokenInBytes);
 
-		string url = $"{_configuration.GetValue<string>("AppUrl")}/ResetPassword?email={email}&token={token}";
+		string url = $"{_unitOfWork.Configuration.GetValue<string>("AppUrl")}/ResetPassword?email={email}&token={token}";
 		string emailBody = _emailService.ResetPasswordEmailBody(url);
 		var sended = await _emailService.SendEmailAsync(email, "Reset Password", emailBody, true);
 		if(!sended.IsSuccessed)
@@ -192,7 +187,7 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> ResetPasswordAsync(ResetPasswordDto model, string token)
 	{
-		var user = await _userManager.FindByEmailAsync(model.Email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(model.Email);
 		if (user is null)
 		{
 			return new CommonResponse("User Not Found...!!", false);
@@ -207,7 +202,7 @@ public class UserService : IUserService
 		var decodedToken = WebEncoders.Base64UrlDecode(token);
 		var originalToken = Encoding.UTF8.GetString(decodedToken);
 
-		var result = await _userManager.ResetPasswordAsync(user, originalToken, model.NewPassword);
+		var result = await _unitOfWork.UserManager.ResetPasswordAsync(user, originalToken, model.NewPassword);
 		if(!result.Succeeded)
 		{
 			return new CommonResponse("cannot change password for now because the link is expired, order new one", false);
@@ -218,7 +213,7 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> LogoutAsync(string email)
 	{
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if(user is null)
 		{
 			return new CommonResponse("user not founded..!!", false);
@@ -240,20 +235,20 @@ public class UserService : IUserService
 			return new CommonResponse("email is not valid..!!", false);
 		}
 
-		var user = await _userManager.FindByEmailAsync(model.Email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(model.Email);
 		if (user is null)
 		{
 			return new CommonResponse("user not found..!!", false);
 		}
 
 		//> check password is valid or not
-		var passwordIsValid = await _userManager.CheckPasswordAsync(user, model.Password);
+		var passwordIsValid = await _unitOfWork.UserManager.CheckPasswordAsync(user, model.Password);
 		if(!passwordIsValid)
 		{
 			return new CommonResponse("Password Is Not Valid..!!", false);
 		}
 
-		IdentityResult result = await _userManager.DeleteAsync(user);
+		IdentityResult result = await _unitOfWork.UserManager.DeleteAsync(user);
 		if(!result.Succeeded)
 		{
 			return new CommonResponse("cannot delete account for now, try again later..!!", false);
@@ -267,7 +262,7 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> ResendConfirmationEmail(string email)
 	{
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if (user is null)
 		{
 			return new CommonResponse("the email is not exist..!!", false);
@@ -276,13 +271,13 @@ public class UserService : IUserService
 		string verificationCode = _emailService.GenerateOTPCode();
 		string emailBody = _emailService.GetConfirmationEmailBody(verificationCode, email);
 
-		var userClaims = await _userManager.GetClaimsAsync(user);
+		var userClaims = await _unitOfWork.UserManager.GetClaimsAsync(user);
 		var generateToken = _tokenService.CreateToken(userClaims.ToList(), DateTime.Now.AddMinutes(5));
 		string token = new JwtSecurityTokenHandler().WriteToken(generateToken);
 
 		user.ConfirmationCode = verificationCode;
 		user.ConfirmationCodeToken = token;
-		var updated = await _userManager.UpdateAsync(user);
+		var updated = await _unitOfWork.UserManager.UpdateAsync(user);
 		if (!updated.Succeeded)
 		{
 			return new CommonResponse("cannot resend the email confirmation..!!", true);
@@ -300,7 +295,7 @@ public class UserService : IUserService
 
 	public async Task<ApplicationUser> GetUserByEmailAsync(string email)
 	{
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if(user is null)
 		{
 			return null!;
@@ -310,7 +305,7 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> UpdateUserAddressAsync(string email, AddressDto model)
 	{
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if (user is null)
 		{
 			return new CommonResponse("user not founded..!!", false);
@@ -318,7 +313,7 @@ public class UserService : IUserService
 		
 		user.Address = AddressMapper.ToAddressModel(model);
 
-		var result = await _userManager.UpdateAsync(user);
+		var result = await _unitOfWork.UserManager.UpdateAsync(user);
 		if (!result.Succeeded)
 		{
 			return new CommonResponse("cannot update address right now, try again later..!", false);
@@ -328,13 +323,13 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> UpdateUserInfoAsync(string email, UpdateAccountDto model)
 	{
-		var user = await _userManager.FindByEmailAsync(email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(email);
 		if (user is null)
 		{
 			return new CommonResponse("user not founded..!!", false);
 		}
 
-		var isUserNameExist = await _userManager.FindByNameAsync(user.UserName);
+		var isUserNameExist = await _unitOfWork.UserManager.FindByNameAsync(user.UserName);
 		if(isUserNameExist is null)
 		{
 			return new CommonResponse("user name already taken..!!", false);
@@ -343,7 +338,7 @@ public class UserService : IUserService
 		user.UserName = model.UserName;
 		user.DisplayName = model.DisplayName;
 
-		var result = await _userManager.UpdateAsync(user);
+		var result = await _unitOfWork.UserManager.UpdateAsync(user);
 		if (!result.Succeeded)
 		{
 			return new CommonResponse("cannot update user right now, try again later..!", false);
@@ -354,35 +349,35 @@ public class UserService : IUserService
 
 	public async Task<CommonResponse> MarkUserAsAdminAsync(MarkUserAsAdminDto model)
 	{
-		var user = await _userManager.FindByEmailAsync(model.Email);
+		var user = await _unitOfWork.UserManager.FindByEmailAsync(model.Email);
 		if (user is null)
 		{
 			return new CommonResponse("user not founded..!!", false);
 		}
 
-		if (await _userManager.IsInRoleAsync(user, "Admin"))
+		if (await _unitOfWork.UserManager.IsInRoleAsync(user, "Admin"))
 		{
 			return new CommonResponse("the User already have 'Admin' role..!!", false);
 		}
 
 		if (model.IsAdmin)
 		{
-			var cliams = await _userManager.GetClaimsAsync(user);
+			var cliams = await _unitOfWork.UserManager.GetClaimsAsync(user);
 			var oldRoleClaim = cliams.FirstOrDefault(C => C.Type == ClaimTypes.Role);
 			
-			var resultOfRmove = await _userManager.RemoveClaimAsync(user, oldRoleClaim);
+			var resultOfRmove = await _unitOfWork.UserManager.RemoveClaimAsync(user, oldRoleClaim);
 			if (!resultOfRmove.Succeeded)
 			{
 				return new CommonResponse("cannot remove old role..!!", false);
 			}
 
-			var resultOfAddClaim  = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
+			var resultOfAddClaim  = await _unitOfWork.UserManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, "Admin"));
 			if (!resultOfAddClaim.Succeeded)
 			{
 				return new CommonResponse("cannot update the claim of user..!!", false);
 			}
 
-			var resutlOfAddRole = await _userManager.AddToRoleAsync(user, "Admin");
+			var resutlOfAddRole = await _unitOfWork.UserManager.AddToRoleAsync(user, "Admin");
 			if (!resutlOfAddRole.Succeeded)
 			{
 				return new CommonResponse("cannot assign new role..!!", false);
@@ -391,7 +386,7 @@ public class UserService : IUserService
 			//> mark user as admin
 			user.IsAdmin = true;
 
-			var result = await _userManager.UpdateAsync(user);
+			var result = await _unitOfWork.UserManager.UpdateAsync(user);
 			if (!result.Succeeded)
 			{
 				return new CommonResponse("cannot assign the new role for the user right now, try again later..!", false);

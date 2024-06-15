@@ -4,11 +4,11 @@ namespace E_Commerce.BLL.Services;
 
 public class DeliveryMethodService : IDeliveryMethodService
 {
-	private readonly IDeliveryMethodRepo _deliveryMethodRepo;
-    public DeliveryMethodService(IDeliveryMethodRepo deliveryMethodRepo)
-    {
-        _deliveryMethodRepo = deliveryMethodRepo;
-    }
+	private readonly IUnitOfWork _unitOfWork;
+	public DeliveryMethodService(IUnitOfWork unitOfWork)
+	{
+		_unitOfWork = unitOfWork;
+	}
 
 	public async Task<CommonResponse> CreateAsync(CreateDeliveryMethodDto model)
 	{
@@ -23,7 +23,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 		try
 		{
-			await _deliveryMethodRepo.CreateAsync(newDeliveryMethod);
+			await _unitOfWork.DeliveryMethodRepo.CreateAsync(newDeliveryMethod);
 			return new CommonResponse("delivery method created..!!", true);
 		}
 		catch (Exception ex)
@@ -35,7 +35,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<CommonResponse> DeleteAsync(Guid id)
 	{
-		var deliverToDelete = await _deliveryMethodRepo.GetByIdAsync(id);
+		var deliverToDelete = await _unitOfWork.DeliveryMethodRepo.GetByIdAsync(id);
 		if(deliverToDelete is null)
 		{
 			return new CommonResponse("cannot find delivery method..!!", false);
@@ -43,7 +43,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 		try
 		{
-			await _deliveryMethodRepo.DeleteAsync(id);
+			await _unitOfWork.DeliveryMethodRepo.DeleteAsync(id);
 			return new CommonResponse("deliver method deleted", true);
 
 		}
@@ -55,7 +55,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<IReadOnlyList<GetDeliveryDto>> GetAllAsync(int page)
 	{
-		var deliveryMethods = await _deliveryMethodRepo.GetAllAsync(page);
+		var deliveryMethods = await _unitOfWork.DeliveryMethodRepo.GetAllAsync(page);
 		if(deliveryMethods is null)
 		{
 			return null!;
@@ -79,7 +79,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<IReadOnlyList<GetDeliveryWithIncludes>> GetAllWithIncludesAsync(int page, params Expression<Func<DeliveryMethod, object>>[] includes)
 	{
-		var deliveryMethods = await _deliveryMethodRepo.GetAllWithIncludesAsync(page, includes);
+		var deliveryMethods = await _unitOfWork.DeliveryMethodRepo.GetAllWithIncludesAsync(page, includes);
 		if (deliveryMethods is null)
 		{
 			return null!;
@@ -110,7 +110,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<GetDeliveryDto> GetByIdAsync(Guid id)
 	{
-		var deliveryMethod = await _deliveryMethodRepo.GetByIdAsync(id);
+		var deliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdAsync(id);
 		if (deliveryMethod is null)
 		{
 			return null!;
@@ -133,7 +133,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<GetDeliveryWithIncludes> GetByIdWithIncludesAsync(Guid id)
 	{
-		var deliveryMethod = await _deliveryMethodRepo.GetByIdWithIncludes(id);
+		var deliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdWithIncludes(id);
 		if (deliveryMethod is null)
 		{
 			return null!;
@@ -162,7 +162,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateDeliverMethodDto model)
 	{
-		var deliveryMethod = await _deliveryMethodRepo.GetByIdWithIncludes(id);
+		var deliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdWithIncludes(id);
 		if (deliveryMethod is null)
 		{
 			return new CommonResponse("cannot find the delivery method..!!", false) ;
@@ -174,7 +174,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 			deliveryMethod.Description = model.Description;
 			deliveryMethod.Price = model.Price;
 			deliveryMethod.ShortName = model.ShortName;
-			await _deliveryMethodRepo.UpdateAsync(deliveryMethod);
+			await _unitOfWork.DeliveryMethodRepo.UpdateAsync(deliveryMethod);
 			return new CommonResponse("delivery method updated..!!", true);
 		}
 		catch(Exception ex)

@@ -3,11 +3,11 @@ namespace E_Commerce.BLL.Services;
 
 public class RoleService : IRoleService
 {
-	private readonly RoleManager<IdentityRole> _roleManager;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IHandlerService _handlerService;
-	public RoleService(RoleManager<IdentityRole> roleManager, IHandlerService handlerService)
+	public RoleService(IUnitOfWork unitOfWork, IHandlerService handlerService)
 	{
-		_roleManager = roleManager;
+		_unitOfWork = unitOfWork;
 		_handlerService = handlerService;
 	}
 
@@ -21,7 +21,7 @@ public class RoleService : IRoleService
 		{
 			Name = model.Name,
 		};
-		IdentityResult result = await _roleManager.CreateAsync(newRole);
+		IdentityResult result = await _unitOfWork.RoleManager.CreateAsync(newRole);
 		if (!result.Succeeded)
 		{
 			var errors = _handlerService.GetErrorsOfIdentityResult(result.Errors);
@@ -33,13 +33,13 @@ public class RoleService : IRoleService
 
 	public async Task<CommonResponse> DeleteRole(string roleName)
 	{
-		var role = await _roleManager.FindByNameAsync(roleName);
+		var role = await _unitOfWork.RoleManager.FindByNameAsync(roleName);
 		if(role is null)
 		{
 			return new CommonResponse("role not found..!!", false);
 		}
 
-		var result = await _roleManager.DeleteAsync(role);
+		var result = await _unitOfWork.RoleManager.DeleteAsync(role);
 		if(!result.Succeeded)
 		{
 			var errors = _handlerService.GetErrorsOfIdentityResult(result.Errors);

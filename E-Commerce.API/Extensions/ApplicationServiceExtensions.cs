@@ -28,6 +28,7 @@ public static class ApplicationServiceExtensions
 		services.AddScoped<IDeliveryMethodService, DeliveryMethodService>();
 		services.AddScoped<IOrderItemRepo, OrderItemRepo>();
 		services.AddScoped<IPaymentService, PaymentService>();
+		services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 		#endregion
 

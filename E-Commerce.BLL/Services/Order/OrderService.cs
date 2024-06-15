@@ -1,23 +1,17 @@
 ﻿
-
+using StackExchange.Redis;
 
 namespace E_Commerce.BLL.Services;
 
 public class OrderService : IOrderService
 {
-	private readonly IOrderRepo _orderRepo;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketService _basketService;
-    private readonly IProductRepo _productRepo;
-    private readonly IDeliveryMethodRepo _deliveryMethodService;
-    private readonly IOrderItemRepo _orderItemRepo;
     private readonly IPaymentService _paymentService;
-    public OrderService(IOrderRepo orderRepo, IBasketService basketService, IProductRepo productRepo, IDeliveryMethodRepo deliveryMethodService, IOrderItemRepo orderItemRepo, IPaymentService paymentService)
+    public OrderService(IUnitOfWork unitOfWork, IBasketService basketService, IPaymentService paymentService)
     {
-        _orderRepo = orderRepo;
+        _unitOfWork = unitOfWork;
         _basketService = basketService;
-        _productRepo = productRepo;
-        _deliveryMethodService = deliveryMethodService;
-        _orderItemRepo = orderItemRepo;
         _paymentService = paymentService;
     }
 
@@ -38,11 +32,11 @@ public class OrderService : IOrderService
         decimal subTotalPrice = Items.Sum(I => I.Price * I.Quantity);
 
 		//> get the price of the Shipment
-		var deliverMethod = await _deliveryMethodService.GetByIdAsync(model.DeliveryMethodId);
+		var deliverMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdAsync(model.DeliveryMethodId);
 		decimal totalPrice = subTotalPrice + deliverMethod.Price;
 
 		//> check if there is order exist with paymentIntent or not
-		var existingOrder = await _orderRepo.GetByPaymentIntentWithIncludesAsync(basket.PaymentIntentId);
+		var existingOrder = await _unitOfWork.OrderRepo.GetByPaymentIntentWithIncludesAsync(basket.PaymentIntentId);
         if(existingOrder is not null)
         {
             //> update it
@@ -79,7 +73,7 @@ public class OrderService : IOrderService
 			}
 
 			//> save the order to Db
-			await _orderRepo.CreateAsync(newOrder);
+			await _unitOfWork.OrderRepo.CreateAsync(newOrder);
 
 			//> return the details of the Order
 			return OrderMapper.ToGetDto(newOrder);
@@ -88,7 +82,7 @@ public class OrderService : IOrderService
 
 	public async Task<CommonResponse> DeleteAsync(Guid id)
 	{
-        var orderToDelete = await _orderRepo.GetByIdAsync(id);
+        var orderToDelete = await _unitOfWork.OrderRepo.GetByIdAsync(id);
         if(orderToDelete is null)
         {
             return new CommonResponse("cannot find the order..!!", false);
@@ -101,7 +95,7 @@ public class OrderService : IOrderService
 
         try
         {
-            await _orderRepo.DeleteAsync(id);
+            await _unitOfWork.OrderRepo.DeleteAsync(id);
             return new CommonResponse("order cancelled..!!", true);
         }
         catch(Exception ex)
@@ -112,7 +106,7 @@ public class OrderService : IOrderService
 
 	public async Task<IReadOnlyList<GetOrderDto>> GetAllAsync(int page, params Expression<Func<Order, object>>[] includes)
 	{
-        var orders = await _orderRepo.GetAllWithIncludesAsync(page, includes);
+        var orders = await _unitOfWork.OrderRepo.GetAllWithIncludesAsync(page, includes);
         if(orders is null)
         {
             return null!;
@@ -130,7 +124,7 @@ public class OrderService : IOrderService
 
 	public async Task<IReadOnlyList<GetOrderDto>> GetAllCreatedOrdersByUserAsync(GetCreatedOrdersByUser model)
 	{
-		var orders = await _orderRepo.GetAllCreatedOrdersByUserAsync(model.UserEmail, model.PageNumber);
+		var orders = await _unitOfWork.OrderRepo.GetAllCreatedOrdersByUserAsync(model.UserEmail, model.PageNumber);
 		if (orders is null)
 		{
 			return null!;
@@ -148,7 +142,7 @@ public class OrderService : IOrderService
 
 	public async Task<IReadOnlyList<GetOrderDto>> GetAllWithFilterAsync(OrderQueryHandler queryHandler)
 	{
-		var orders = await _orderRepo.GetAllWithQueryAsync(queryHandler);
+		var orders = await _unitOfWork.OrderRepo.GetAllWithQueryAsync(queryHandler);
 		if (orders is null)
 		{
 			return null!;
@@ -166,7 +160,7 @@ public class OrderService : IOrderService
 
 	public async Task<GetOrderDto> GetOrderAsync(Guid id)
 	{
-        var order = await _orderRepo.GetByIdWithIncludesAsync(id);
+        var order = await _unitOfWork.OrderRepo.GetByIdWithIncludesAsync(id);
         if(order is null)
         {
             return null!;
@@ -183,7 +177,7 @@ public class OrderService : IOrderService
 
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateOrderDto model)
 	{
-        var orderToUpdate = await _orderRepo.GetByIdWithIncludesAsync(id);
+        var orderToUpdate = await _unitOfWork.OrderRepo.GetByIdWithIncludesAsync(id);
         if(orderToUpdate is null)
         {
             return new CommonResponse("cannot find order to update..!!", false);
@@ -204,7 +198,7 @@ public class OrderService : IOrderService
             orderToUpdate.BuyerEmail = model.BuyerEmail;
             orderToUpdate.ShipToAddress = model.ShipToAddress;
             orderToUpdate.DeliveryMethodId = model.DeliveryMethodId;
-            orderToUpdate.DeliveryMethod = await _deliveryMethodService.GetByIdAsync(model.DeliveryMethodId);
+            orderToUpdate.DeliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdAsync(model.DeliveryMethodId);
 
             //> get order items from new basket
             var basket = await _basketService.GetBasketAsync(model.BasketId);
@@ -226,8 +220,8 @@ public class OrderService : IOrderService
             decimal newTotalPrice = items.Sum(I => I.Price * I.Quantity);
             orderToUpdate.TotalPrice = newTotalPrice + orderToUpdate.DeliveryMethod?.Price ?? 0; ;
 
-			await _orderItemRepo.CreateWithRangAsync(items);
-			await _orderRepo.UpdateAsync(orderToUpdate);
+			await _unitOfWork.OrderItemRepo.CreateWithRangAsync(items);
+			await _unitOfWork.OrderRepo.UpdateAsync(orderToUpdate);
 
             return new CommonResponse("order updated..!!", true);
         }
@@ -244,7 +238,7 @@ public class OrderService : IOrderService
 		foreach (var item in BasketItems)
 		{
 			//> get each Item of the basket from the db by Id
-			var productItem = await _productRepo.GetByIdWithIncludesAsync(item.Id);
+			var productItem = await _unitOfWork.ProductRepo.GetByIdWithIncludesAsync(item.Id);
 			var itemOrdered = new ProductOrderItem
 			{
 				Id = productItem.Id,

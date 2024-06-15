@@ -6,20 +6,18 @@ namespace E_Commerce.BLL.Services;
 
 public class TokenService : ITokenService
 {
-	private readonly IConfiguration _configuration;
-	private readonly UserManager<ApplicationUser> _userManager;
+	private readonly IUnitOfWork _unitOfWork;
 	private readonly IHttpContextAccessor _httpContextAccessor;
-	public TokenService(IConfiguration configuration, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
+	public TokenService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
 	{
-		_configuration = configuration;
-		_userManager = userManager;
+		_unitOfWork = unitOfWork;
 		_httpContextAccessor = httpContextAccessor;
 	}
 	public JwtSecurityToken CreateToken(List<Claim> claims, DateTime expireationTime)
 	{
 		return new JwtSecurityToken(
-			issuer: _configuration["JWT:Issuer"],
-			audience: _configuration["JWT:Audiences"],
+			issuer: _unitOfWork.Configuration["JWT:Issuer"],
+			audience: _unitOfWork.Configuration["JWT:Audiences"],
 			notBefore: DateTime.Now,
 			expires: expireationTime,
 			claims: claims,
@@ -39,7 +37,7 @@ public class TokenService : ITokenService
 
 	public string GetKeyAsString()
 	{
-		return _configuration["Jwt:TokenKey"];
+		return _unitOfWork.Configuration["Jwt:TokenKey"];
 	}
 
 	public JwtSecurityToken ReadToken(string token)
@@ -75,7 +73,7 @@ public class TokenService : ITokenService
 	public async Task<string> CreateLoginToken(ApplicationUser user)
 	{
 		//> get user claims from database
-		var userClaims = await _userManager.GetClaimsAsync(user);
+		var userClaims = await _unitOfWork.UserManager.GetClaimsAsync(user);
 
 		if (userClaims is null) return "NA";
 
@@ -83,7 +81,7 @@ public class TokenService : ITokenService
 		userClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
 		//> generate the token by claims
-		int numberOfDays = int.Parse(_configuration["JWT:TokenExpirePerDay"]);
+		int numberOfDays = int.Parse(_unitOfWork.Configuration["JWT:TokenExpirePerDay"]);
 		var generateToken = CreateToken(userClaims.ToList(), DateTime.Now.AddDays(numberOfDays));
 		return new JwtSecurityTokenHandler().WriteToken(generateToken);
 	}
