@@ -17,4 +17,6 @@ public interface IUserService
 	Task<CommonResponse> UpdateUserAddressAsync(string email, IdentityAddressDto model);
 	Task<CommonResponse> UpdateUserInfoAsync(string email, UpdateAccountDto model);
 	Task<CommonResponse> MarkUserAsAdminAsync(MarkUserAsAdminDto model);
+	int GetAdminsCount();
+	int GetUsersCount();
 }

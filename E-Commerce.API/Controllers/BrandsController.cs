@@ -16,7 +16,7 @@ public class BrandsController : ControllerBase
 		_cacheHelper = cacheHelper;
     }
 
-	[HttpGet("All/{pageNumber}")]
+	[HttpGet("AllBrands/{pageNumber}")]
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
@@ -64,6 +64,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpGet("AllIn/{pageNumber}")]
+	[Authorize(policy:"Admin")]
 	public async Task<ActionResult> GetAllWithIncludes(int pageNumber)
 	{
 		var cacheData = "GetAllBrandsWithIncludes";
@@ -74,7 +75,7 @@ public class BrandsController : ControllerBase
 			return Ok(result);
 		}
 
-		result = await _brandService.GetAllWithIncludes(pageNumber, B => B.Products);
+		result = await _brandService.GetAllWithIncludesAsync(pageNumber, B => B.Products);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
@@ -85,7 +86,29 @@ public class BrandsController : ControllerBase
 		return Ok(result);
 	}
 
-    [HttpGet("{id}")]
+	[HttpGet("All/{pageNumber}")]
+	public async Task<ActionResult> GetAllExceptDeleted(int pageNumber)
+	{
+		var cacheData = "GetAllBrandsCatExceptDeleted";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetBrandWithIncludesDto>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _brandService.GetAllWithIncludesExceptDeletedAsync(pageNumber);
+		if (result is null)
+		{
+			return BadRequest(new ApiResponse(404));
+		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
+		return Ok(result);
+	}
+
+	[HttpGet("{id}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetById(Guid id)
 	{
@@ -160,6 +183,18 @@ public class BrandsController : ControllerBase
 	public async Task<ActionResult> DeleteBrand([FromRoute] Guid id)
 	{
 		var result = await _brandService.DeleteAsync(id);
+		if (!result.IsSuccessed)
+		{
+			return BadRequest(result);
+		}
+		return Ok(result);
+	}
+
+	[HttpDelete("MarkAsDeleted/{id}")]
+	[Authorize]
+	public async Task<ActionResult> MarkAsDeleted([FromRoute] Guid id)
+	{
+		var result = await _brandService.MarkeBrandAsDeletedAsync(id);
 		if (!result.IsSuccessed)
 		{
 			return BadRequest(result);

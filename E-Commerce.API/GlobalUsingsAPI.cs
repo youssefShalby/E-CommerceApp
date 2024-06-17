@@ -20,5 +20,5 @@ global using E_Commerce.DAL.Query;
 global using E_Commerce.DAL.Helpers;
 global using Microsoft.OpenApi.Models;
 global using E_Commerce.API.ApiHelper;
-
+global using E_Commerce.API.Extensions;
 

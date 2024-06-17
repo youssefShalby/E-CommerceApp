@@ -1,16 +1,25 @@
 ﻿
 
-
 namespace E_Commerce.DAL.Repositories;
 
 public class CategoryRepo : GenericRepo<Category>, ICategoryRepo
 {
 	private readonly AppDbContext _context;
-	private readonly IConfiguration _configuration;
+	private readonly IConfigHelper _helper;
 	public CategoryRepo(AppDbContext context, IConfiguration configuration, IConfigHelper helper) : base(context, configuration, helper)
 	{
 		_context = context;
-		_configuration = configuration;
+		_helper = helper;
+	}
+
+	public async Task<IReadOnlyList<Category>> GetAllExceptDeletedAsync(int page)
+	{
+		return await _context.Set<Category>()
+			.AsNoTracking()
+			.Include(C => C.Products)
+			.Where(category => category.IsDeleted == false)
+			.Skip((page - 1) * _helper.GetPageSize()).Take(_helper.GetPageSize())
+			.ToListAsync();
 	}
 
 	public async Task<IEnumerable<Category>> GetAllWithQueryAsync(CategoryQueryHandler queryHandler)
@@ -23,7 +32,7 @@ public class CategoryRepo : GenericRepo<Category>, ICategoryRepo
 		//> Search | filter
 		if (!string.IsNullOrEmpty(queryHandler.Name))
 		{
-			categories = categories.Where(category => category.Name.Contains(queryHandler.Name));
+			categories = categories.Where(category => category.Name.Contains(queryHandler.Name) && category.IsDeleted == false);
 		}
 
 		//> Sort
@@ -50,5 +59,28 @@ public class CategoryRepo : GenericRepo<Category>, ICategoryRepo
 		return await _context.Set<Category>()
 			.Include(C => C.Products)
 			.FirstOrDefaultAsync(C => C.Id == id) ?? null!;
+	}
+
+	public int GetCount()
+	{
+		return _context.Categories is null ? 0 : _context.Categories.Count();
+	}
+
+	public int GetDeletedCount()
+	{
+		return _context.Categories is null ? 0 : _context.Categories.Where(C => C.IsDeleted == true).Count();
+	}
+
+	public async Task<int> MarkCategoryAsDeletedAsync(Guid id)
+	{
+		var categoryToDelete = await _context.Set<Category>().FirstOrDefaultAsync(c => c.Id == id);
+		if(categoryToDelete is null)
+		{
+			return -1;
+		}
+
+		categoryToDelete.IsDeleted = true;
+		await _context.SaveChangesAsync();
+		return 0;
 	}
 }

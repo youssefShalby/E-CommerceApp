@@ -396,7 +396,16 @@ public class UserService : IUserService
 			return new CommonResponse("the role assigned to the user..!!", true);
 		}
 		return new CommonResponse("the admin role not assigned to the user..!!", false);
+	}
 
+	public int GetAdminsCount()
+	{
+		return _unitOfWork.UserManager.Users is null ? 0 : _unitOfWork.UserManager.Users.Where(u => u.IsAdmin == true).Count();
 
+	}
+
+	public int GetUsersCount()
+	{
+		return _unitOfWork.UserManager.Users is null ? 0 : _unitOfWork.UserManager.Users.Count();
 	}
 }

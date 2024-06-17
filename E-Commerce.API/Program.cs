@@ -1,8 +1,5 @@
 
 
-
-using E_Commerce.API.Extensions;
-
 var builder = WebApplication.CreateBuilder(args);
 
 #region Services
@@ -14,19 +11,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//> load smpt settings from json configuration
-var smtpSettings = builder.Configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
-builder.Services.AddSingleton(smtpSettings);
-
-var stripeSettings = builder.Configuration.GetSection("StripeSettings").Get<StripeSettings>();
-builder.Services.AddSingleton(stripeSettings);
 
 builder.Services.AddApplicationService(builder.Configuration);
-
-string connectionString = builder.Configuration.GetConnectionString("eCommerceDb");
-builder.Services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
-
-builder.Services.AddHttpContextAccessor();
 
 
 #endregion

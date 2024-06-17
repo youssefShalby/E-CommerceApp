@@ -1,7 +1,5 @@
 ﻿
 
-using StackExchange.Redis;
-
 namespace E_Commerce.BLL.Services;
 
 public class TokenService : ITokenService

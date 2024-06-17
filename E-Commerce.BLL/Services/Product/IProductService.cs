@@ -14,5 +14,6 @@ public interface IProductService
 	Task<GetProductWithIncludesDto> GetByIdWithIncludesAsync(Guid id);
 	Task<CommonResponse> UpdateAsync(Guid id, UpdateProductDto model);
 	Task<CommonResponse> DeleteProductAsync(Guid id);
+	int GetCount();
 }
 

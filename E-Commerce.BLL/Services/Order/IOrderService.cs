@@ -11,4 +11,5 @@ public interface IOrderService
 	Task<GetOrderDto> GetOrderAsync(Guid id);
 	Task<CommonResponse> UpdateAsync(Guid id, UpdateOrderDto model);
 	Task<CommonResponse> DeleteAsync(Guid id);
+	int GetCount();
 }

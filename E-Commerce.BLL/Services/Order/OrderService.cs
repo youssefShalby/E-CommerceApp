@@ -1,6 +1,4 @@
 ﻿
-using StackExchange.Redis;
-
 namespace E_Commerce.BLL.Services;
 
 public class OrderService : IOrderService
@@ -74,6 +72,7 @@ public class OrderService : IOrderService
 
 			//> save the order to Db
 			await _unitOfWork.OrderRepo.CreateAsync(newOrder);
+			await _unitOfWork.OrderRepo.SaveChangesAsync();
 
 			//> return the details of the Order
 			return OrderMapper.ToGetDto(newOrder);
@@ -96,6 +95,7 @@ public class OrderService : IOrderService
         try
         {
             await _unitOfWork.OrderRepo.DeleteAsync(id);
+            await _unitOfWork.OrderRepo.SaveChangesAsync();
             return new CommonResponse("order cancelled..!!", true);
         }
         catch(Exception ex)
@@ -156,6 +156,11 @@ public class OrderService : IOrderService
 		{
 			return null!;
 		}
+	}
+
+	public int GetCount()
+	{
+		return _unitOfWork.OrderRepo.GetCount();
 	}
 
 	public async Task<GetOrderDto> GetOrderAsync(Guid id)
@@ -221,9 +226,12 @@ public class OrderService : IOrderService
             orderToUpdate.TotalPrice = newTotalPrice + orderToUpdate.DeliveryMethod?.Price ?? 0; ;
 
 			await _unitOfWork.OrderItemRepo.CreateWithRangAsync(items);
-			await _unitOfWork.OrderRepo.UpdateAsync(orderToUpdate);
+			await _unitOfWork.OrderItemRepo.SaveChangesAsync();
 
-            return new CommonResponse("order updated..!!", true);
+			_unitOfWork.OrderRepo.Update(orderToUpdate); 
+			await _unitOfWork.OrderRepo.SaveChangesAsync();
+
+			return new CommonResponse("order updated..!!", true);
         }
         catch(Exception ex)
         {
@@ -242,7 +250,7 @@ public class OrderService : IOrderService
 			var itemOrdered = new ProductOrderItem
 			{
 				Id = productItem.Id,
-				ImageUrl = productItem.Images.Select(img => img.Url).ToArray()[0],
+				ImageUrl = productItem.Images!.Select(img => img.Url).ToArray()[0],
 				ProductName = productItem.Name
 			};
 

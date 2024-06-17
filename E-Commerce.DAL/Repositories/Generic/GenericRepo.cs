@@ -16,20 +16,17 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
     public async Task CreateAsync(T entity)
 	{
 		await _context.Set<T>().AddAsync(entity);
-		await SaveChangesAsync();
 	}
 
 	public async Task CreateWithRangAsync(IEnumerable<T> entity)
 	{
 		await _context.Set<T>().AddRangeAsync(entity);
-		await SaveChangesAsync();
 	}
 
 	public async Task DeleteAsync<TId>(TId id)
 	{
 		var productToDelete = await GetByIdAsync(id);
 		_context.Set<T>().Remove(productToDelete);
-		SaveChanges();
 	}
 
 	public IEnumerable<T> GetAll(int page)
@@ -71,14 +68,7 @@ public class GenericRepo<T> : IGenericRepo<T> where T : class
 
 	public void Update(T entity)
 	{
-		//_context.Set<T>().Update(entity);
-		SaveChanges();
-	}
-
-	public async Task UpdateAsync(T entity)
-	{
 		_context.Set<T>().Update(entity);
-		await SaveChangesAsync();
 	}
 
 	

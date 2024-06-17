@@ -1,7 +1,5 @@
 ﻿
 
-using E_Commerce.API.ApiHelper;
-
 namespace E_Commerce.API.Controllers;
 
 
@@ -52,7 +50,7 @@ public class DeliveryMethodsController : ControllerBase
 			return Ok(result);
 		}
 
-		result = await _deliveryMethodService.GetAllWithIncludesAsync(page, DM => DM.Orders);
+		result = await _deliveryMethodService.GetAllWithIncludesAsync(page, DM => DM.Orders!);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));

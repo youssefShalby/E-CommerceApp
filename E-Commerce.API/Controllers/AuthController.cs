@@ -31,7 +31,7 @@ public class AuthController : ControllerBase
 		return CreatedAtAction(nameof(ConfirmEmail), new { UserId = userId });
 	}
 	
-	[HttpPost("Register/SA")]
+	[HttpPost("SA/Register")]
 	public async Task<ActionResult> RegisterSuperAdmin([FromHeader]string key, [FromBody] RegisterUserDto model)
 	{
 		if(key != _configuration["Identity:SuperAdminKey"])
@@ -111,7 +111,7 @@ public class AuthController : ControllerBase
 		return Ok(await _userService.LogoutAsync(email));
 	}
 
-	[HttpPost("RomveAcc")]
+	[HttpPost("RomveAccount")]
 	[Authorize]
 	public async Task<ActionResult> ReomveAccount(RemoveAccountDto model)
 	{

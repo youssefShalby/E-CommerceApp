@@ -16,7 +16,7 @@ public class CategoriesController : ControllerBase
 		_cacheHelper = cacheHelper;
     }
 
-	[HttpGet("All/{pageNumber}")]
+	[HttpGet("AllCategories/{pageNumber}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAll(int pageNumber)
 	{
@@ -62,6 +62,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("AllIn/{pageNumber}")]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAllWithIncludes(int pageNumber)
 	{
 		var cacheData = "GetAllCategoriesWithIncludes";
@@ -73,6 +74,28 @@ public class CategoriesController : ControllerBase
 		}
 
 		result = await _categoryService.GetAllWithIncludesAsync(pageNumber, C => C.Products);
+		if (result is null)
+		{
+			return BadRequest(new ApiResponse(404));
+		}
+
+		await _cacheHelper.SetDataInCache(cacheData, result);
+
+		return Ok(result);
+	}
+
+	[HttpGet("All/{pageNumber}")]
+	public async Task<ActionResult> GetAllExceptDeleted(int pageNumber)
+	{
+		var cacheData = "GetAllCatExceptDeleted";
+
+		var result = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetCategoryWithIncludesDto>>(cacheData);
+		if (result is not null)
+		{
+			return Ok(result);
+		}
+
+		result = await _categoryService.GetAllWithIncludesExceptDeletedAsync(pageNumber);
 		if (result is null)
 		{
 			return BadRequest(new ApiResponse(404));
@@ -158,6 +181,18 @@ public class CategoriesController : ControllerBase
 	public async Task<ActionResult> DeleteCategory([FromRoute] Guid id)
 	{
 		var result = await _categoryService.DeleteAsync(id);
+		if (!result.IsSuccessed)
+		{
+			return BadRequest(result);
+		}
+		return Ok(result);
+	}
+
+	[HttpDelete("MarkAsDeleted/{id}")]
+	[Authorize]
+	public async Task<ActionResult> MarkAsDeleted([FromRoute] Guid id)
+	{
+		var result = await _categoryService.MarkeCategoryAsDeletedAsync(id);
 		if (!result.IsSuccessed)
 		{
 			return BadRequest(result);

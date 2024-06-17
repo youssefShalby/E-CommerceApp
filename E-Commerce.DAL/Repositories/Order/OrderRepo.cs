@@ -6,12 +6,10 @@ namespace E_Commerce.DAL.Repositories;
 public class OrderRepo : GenericRepo<Order>, IOrderRepo
 {
 	private readonly AppDbContext _context;
-	private readonly IConfiguration _configuration;
 	private readonly IConfigHelper _helper;
 	public OrderRepo(AppDbContext context, IConfiguration configuration, IConfigHelper helper) : base(context, configuration, helper)
     {
 		_context = context;
-		_configuration = configuration;
 		_helper = helper;
 	}
 
@@ -64,5 +62,10 @@ public class OrderRepo : GenericRepo<Order>, IOrderRepo
 			.Include(O => O.OrderItems)
 			.Include(O => O.DeliveryMethod)
 			.FirstOrDefaultAsync(O => O.PaymentIntentId == paymentIntentId) ?? null!;
+	}
+
+	public int GetCount()
+	{
+		return _context.Orders is null ? 0 : _context.Orders.Count();
 	}
 }

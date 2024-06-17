@@ -146,7 +146,7 @@ public class ProductsController : ControllerBase
 			return Ok(products);
 		}
 
-		products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!,  P => P.Images);
+		products = await _productService.GetAllWithIncludesAsync(pageNumber, P => P.Brand!, P => P.Category!,  P => P.Images!);
 		if (products is null)
 		{
 			return NotFound();

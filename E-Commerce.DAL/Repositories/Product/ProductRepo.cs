@@ -1,21 +1,14 @@
 ﻿
 
-
-
-
-using E_Commerce.DAL.Query;
-
 namespace E_Commerce.DAL.Repositories;
 
 public class ProductRepo : GenericRepo<Product>, IProductRepo
 {
     private readonly AppDbContext _context;
-    private readonly IConfiguration _configuration;
     private readonly IConfigHelper _helper;
     public ProductRepo(AppDbContext context, IConfiguration configuration, IConfigHelper helper) : base(context, configuration, helper)
     {
         _context = context;
-        _configuration = configuration;
         _helper = helper;
     }
 
@@ -82,4 +75,8 @@ public class ProductRepo : GenericRepo<Product>, IProductRepo
             .FirstOrDefaultAsync(P => P.Id == id) ?? null!;
 	}
 
+	public int GetCount()
+	{
+		return _context.Products is null ? 0 : _context.Products.Count();
+	}
 }

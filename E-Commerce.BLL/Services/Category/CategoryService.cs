@@ -23,6 +23,7 @@ public class CategoryService : ICategoryService
 		try
 		{
 			await _unitOfWork.CategoryRepo.CreateAsync(newCategory);
+			await _unitOfWork.CategoryRepo.SaveChangesAsync();
 			return new CommonResponse("Category Created..!!", true);
 		}
 		catch(Exception ex)
@@ -37,6 +38,7 @@ public class CategoryService : ICategoryService
 		try
 		{
 			await _unitOfWork.CategoryRepo.DeleteAsync(id);
+			await _unitOfWork.CategoryRepo.SaveChangesAsync();
 			return new CommonResponse("Category Deleted..!!", true);
 		}
 		catch(Exception ex)
@@ -80,7 +82,26 @@ public class CategoryService : ICategoryService
 
 			}).ToList();
 		}
-		catch (Exception ex)
+		catch (Exception)
+		{
+			return null!;
+		}
+	}
+
+	public async Task<IReadOnlyList<GetCategoryWithIncludesDto>> GetAllWithIncludesExceptDeletedAsync(int page)
+	{
+		try
+		{
+			var categories = await _unitOfWork.CategoryRepo.GetAllExceptDeletedAsync(page);
+			return categories.Select(category => new GetCategoryWithIncludesDto
+			{
+				Name = category.Name,
+				CreatedAt = category.CreatedAt,
+				Products = category.Products.Select(product => ProductMapper.ToGetDto(product)).ToList()
+
+			}).ToList();
+		}
+		catch (Exception)
 		{
 			return null!;
 		}
@@ -115,6 +136,26 @@ public class CategoryService : ICategoryService
 		};
 	}
 
+	public int GetCount()
+	{
+		return _unitOfWork.CategoryRepo.GetCount();
+	}
+
+	public int GetDeletedCount()
+	{
+		return _unitOfWork.CategoryRepo.GetDeletedCount();
+	}
+
+	public async Task<CommonResponse> MarkeCategoryAsDeletedAsync(Guid id)
+	{
+		int result = await _unitOfWork.CategoryRepo.MarkCategoryAsDeletedAsync(id);
+		if(result == -1)
+		{
+			return new CommonResponse("cannot find the category..!!", false);
+		}
+		return new CommonResponse("Category Deleted..!!", true);
+	}
+
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateCategoryDto model)
 	{
 		var category = await _unitOfWork.CategoryRepo.GetByIdWithIncludesAsync(id);
@@ -127,7 +168,8 @@ public class CategoryService : ICategoryService
 		{
 			category.IsDeleted = model.IsDeleted;
 			category.Name = model.Name;
-			await _unitOfWork.CategoryRepo.UpdateAsync(category);
+			_unitOfWork.CategoryRepo.Update(category);
+			await _unitOfWork.CategoryRepo.SaveChangesAsync();
 			return new CommonResponse("category updated..!!", true);
 		}
 		catch(Exception ex)

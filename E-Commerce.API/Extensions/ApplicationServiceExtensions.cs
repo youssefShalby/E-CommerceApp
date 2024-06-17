@@ -1,12 +1,31 @@
 ﻿
-using E_Commerce.API.ApiHelper;
-
 namespace E_Commerce.API.Extensions;
 
 public static class ApplicationServiceExtensions
 {
 	public static IServiceCollection AddApplicationService(this IServiceCollection services, IConfiguration configuration)
 	{
+
+		#region Option Pattern
+
+		//> load smpt settings from json configuration
+		var smtpSettings = configuration.GetSection("SmtpSettings").Get<SmtpSettings>();
+		services.AddSingleton(smtpSettings);
+
+		var stripeSettings = configuration.GetSection("StripeSettings").Get<StripeSettings>();
+		services.AddSingleton(stripeSettings);
+
+		#endregion
+
+		#region Connetion Strings and HttpContextAccessor
+
+		string connectionString = configuration.GetConnectionString("eCommerceDb");
+		services.AddDbContext<AppDbContext>(option => option.UseSqlServer(connectionString));
+
+		services.AddHttpContextAccessor();
+
+		#endregion
+
 		#region Dependency Injection
 
 		services.AddScoped<IProductRepo, ProductRepo>();
@@ -153,6 +172,8 @@ public static class ApplicationServiceExtensions
 		});
 
 		#endregion
+
+
 
 		return services;
 

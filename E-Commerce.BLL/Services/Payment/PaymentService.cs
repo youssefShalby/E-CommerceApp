@@ -100,7 +100,8 @@ public class PaymentService : IPaymentService
 		}
 
 		order.Status = OrderStatus.PaymentFaild;
-		await _unitOfWork.OrderRepo.UpdateAsync(order);
+		_unitOfWork.OrderRepo.Update(order);
+		await _unitOfWork.OrderRepo.SaveChangesAsync();
 		return order;
 	}
 
@@ -113,7 +114,8 @@ public class PaymentService : IPaymentService
 		}
 
 		order.Status = OrderStatus.PaymentReceived;
-		await _unitOfWork.OrderRepo.UpdateAsync(order);
+		_unitOfWork.OrderRepo.Update(order);
+		await _unitOfWork.OrderRepo.SaveChangesAsync();
 		return order;
 	}
 }

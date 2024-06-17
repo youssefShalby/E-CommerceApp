@@ -1,7 +1,4 @@
 ﻿
-
-using MailKit.Net.Imap;
-
 namespace E_Commerce.BLL.Services;
 
 public class ProductService : IProductService
@@ -19,6 +16,7 @@ public class ProductService : IProductService
 			Product newProduct = ProductMapper.ToProductModelFromCreateDto(model);
 
 			await _unitOfWork.ProductRepo.CreateAsync(newProduct);
+			await _unitOfWork.ProductRepo.SaveChangesAsync();
 			return new CommonResponse("product created..!!", true);
 		}
 		catch (Exception ex)
@@ -37,6 +35,7 @@ public class ProductService : IProductService
 		try
 		{
 			await _unitOfWork.ProductRepo.DeleteAsync(id);
+			await _unitOfWork.ProductRepo.SaveChangesAsync();
 			return new CommonResponse("Product Deleted..!!", true);
 		}
 		catch(Exception ex)
@@ -152,6 +151,11 @@ public class ProductService : IProductService
 		}
 	}
 
+	public int GetCount()
+	{
+		return _unitOfWork.ProductRepo.GetCount();
+	}
+
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateProductDto model)
 	{
 		var productToUpdate = await _unitOfWork.ProductRepo.GetByIdWithIncludesAsync(id);
@@ -182,6 +186,7 @@ public class ProductService : IProductService
 			await _unitOfWork.ImageRepo.CreateWithRangAsync(images);
 
 			_unitOfWork.ProductRepo.Update(productToUpdate);
+			_unitOfWork.ProductRepo.SaveChanges();
 			return new CommonResponse("product updated success..!!", true);
 		}
 		catch(Exception ex)

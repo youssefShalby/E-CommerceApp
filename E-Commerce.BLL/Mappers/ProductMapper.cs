@@ -16,7 +16,7 @@ public class ProductMapper
 			CreatedAt = product.CreatedAt,
 			BrandName = product.Brand?.Name ?? "NA",
 			CategoryName = product.Category?.Name ?? "NA",
-			ImagesUrl = product.Images.Select(img => img.Url).ToList()
+			ImagesUrl = product.Images?.Select(img => img.Url).ToList()
 		};
 	}
 

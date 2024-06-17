@@ -24,6 +24,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 		try
 		{
 			await _unitOfWork.DeliveryMethodRepo.CreateAsync(newDeliveryMethod);
+			await _unitOfWork.DeliveryMethodRepo.SaveChangesAsync();
 			return new CommonResponse("delivery method created..!!", true);
 		}
 		catch (Exception ex)
@@ -44,6 +45,7 @@ public class DeliveryMethodService : IDeliveryMethodService
 		try
 		{
 			await _unitOfWork.DeliveryMethodRepo.DeleteAsync(id);
+			await _unitOfWork.DeliveryMethodRepo.SaveChangesAsync();
 			return new CommonResponse("deliver method deleted", true);
 
 		}
@@ -160,6 +162,11 @@ public class DeliveryMethodService : IDeliveryMethodService
 		}
 	}
 
+	public int GetCount()
+	{
+		return _unitOfWork.DeliveryMethodRepo.GetCount();
+	}
+
 	public async Task<CommonResponse> UpdateAsync(Guid id, UpdateDeliverMethodDto model)
 	{
 		var deliveryMethod = await _unitOfWork.DeliveryMethodRepo.GetByIdWithIncludes(id);
@@ -174,7 +181,8 @@ public class DeliveryMethodService : IDeliveryMethodService
 			deliveryMethod.Description = model.Description;
 			deliveryMethod.Price = model.Price;
 			deliveryMethod.ShortName = model.ShortName;
-			await _unitOfWork.DeliveryMethodRepo.UpdateAsync(deliveryMethod);
+			_unitOfWork.DeliveryMethodRepo.Update(deliveryMethod);
+			await _unitOfWork.DeliveryMethodRepo.SaveChangesAsync();
 			return new CommonResponse("delivery method updated..!!", true);
 		}
 		catch(Exception ex)

@@ -10,4 +10,5 @@ public interface IDeliveryMethodService
 	Task<CommonResponse> CreateAsync(CreateDeliveryMethodDto model);
 	Task<CommonResponse> UpdateAsync(Guid id, UpdateDeliverMethodDto model);
 	Task<CommonResponse> DeleteAsync(Guid id);
+	int GetCount();
 }
