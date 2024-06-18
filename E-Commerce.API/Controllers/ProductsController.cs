@@ -59,7 +59,7 @@ public class ProductsController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("All/{pageNumber}")]
+	[HttpGet("GetAll/{pageNumber}")]
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
@@ -74,7 +74,7 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-	[HttpGet("All/User/{pageNumber}")]
+	[HttpGet("GetAllUserProducts/{pageNumber}")]
 	[Authorize(policy: "User")]
 	public async Task<ActionResult> GetAllCreatedByUser(int pageNumber)
 	{
@@ -108,7 +108,7 @@ public class ProductsController : ControllerBase
 		return Ok(products);
 	}
 
-	[HttpPost("All/filter")]
+	[HttpPost("GetAllWithQuery")]
 	public async Task<ActionResult> GetAllWithFilter([FromBody]ProductQueryHandler queryHandler)
 	{
 
@@ -132,7 +132,7 @@ public class ProductsController : ControllerBase
 		return Ok(products);
 	}
 
-	[HttpGet("AllIn/{pageNumber}")]
+	[HttpGet("GetAllWithRelatedResources/{pageNumber}")]
 	[Authorize(policy: "User")]
 	public async Task<ActionResult> GetAllWithIncludes([FromBody] int pageNumber)
 	{
@@ -179,7 +179,7 @@ public class ProductsController : ControllerBase
 		return Ok(product);
 	}
 
-	[HttpGet("In/{id}")]
+	[HttpGet("GetByIdWithRelatedResources/{id}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{

@@ -37,7 +37,7 @@ public class OrdersController : ControllerBase
         return Ok(order);
     }
 
-    [HttpGet("All/{pageNumber}")]
+    [HttpGet("GetAll/{pageNumber}")]
 	[Authorize(policy: "Admin")]
     public async Task<ActionResult> GetAll(int pageNumber)
     {
@@ -52,7 +52,7 @@ public class OrdersController : ControllerBase
         return Ok(result);
     }
 
-	[HttpGet("All/User/{pageNumber}")]
+	[HttpGet("GetAllUserOrders/{pageNumber}")]
 	[Authorize]
 	public async Task<ActionResult> GetAllCreatedByUser(int pageNumber)
 	{
@@ -87,7 +87,7 @@ public class OrdersController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpPost("All/filter")]
+	[HttpPost("GetAllWithQuery")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAllWithFilter(OrderQueryHandler queryHandler)
     {

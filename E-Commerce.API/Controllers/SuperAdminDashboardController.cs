@@ -22,7 +22,7 @@ public class SuperAdminDashboardController : CommonEndpointsController
 	}
 
 
-	[HttpPost("markUserAsAdmin")]
+	[HttpPost("MarkUserAsAdmin")]
 	public async Task<ActionResult> MarkUserAsAdmin(MarkUserAsAdminDto model)
 	{
 		var result = await _userService.MarkUserAsAdminAsync(model);

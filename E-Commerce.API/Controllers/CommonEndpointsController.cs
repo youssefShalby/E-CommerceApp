@@ -23,7 +23,7 @@ public abstract class CommonEndpointsController : ControllerBase
 	}
 
 
-	[HttpGet("AppData")]
+	[HttpGet("AppInfo")]
 	public ActionResult GetAppInfo()
 	{
 		GetAppInfo appInfo = new GetAppInfo

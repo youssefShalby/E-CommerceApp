@@ -16,7 +16,7 @@ public class CategoriesController : ControllerBase
 		_cacheHelper = cacheHelper;
     }
 
-	[HttpGet("AllCategories/{pageNumber}")]
+	[HttpGet("GetAll/{pageNumber}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAll(int pageNumber)
 	{
@@ -39,7 +39,7 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpPost("All/filter")]
+	[HttpPost("GetAllWithQuery")]
 	public async Task<ActionResult> GetAllWithFilter(CategoryQueryHandler queryHandler)
 	{
 		var cacheData = "GetAllCategoriesWithFilter";
@@ -61,7 +61,7 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("AllIn/{pageNumber}")]
+	[HttpGet("GetAllWithRelatedResources/{pageNumber}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetAllWithIncludes(int pageNumber)
 	{
@@ -84,7 +84,7 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("All/{pageNumber}")]
+	[HttpGet("GetAllExceptDeleted/{pageNumber}")]
 	public async Task<ActionResult> GetAllExceptDeleted(int pageNumber)
 	{
 		var cacheData = "GetAllCatExceptDeleted";
@@ -129,7 +129,7 @@ public class CategoriesController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/{id}")]
+	[HttpGet("GetByIdWithRelatedResources/{id}")]
 	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{

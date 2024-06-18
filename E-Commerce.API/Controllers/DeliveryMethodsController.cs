@@ -16,7 +16,7 @@ public class DeliveryMethodsController : ControllerBase
 		_cacheHelper = cacheHelper;
     }
 
-	[HttpGet("All/{pageNumber}")]
+	[HttpGet("GetAll/{pageNumber}")]
 	public async Task<ActionResult> GetAll(int page)
 	{
 
@@ -39,7 +39,7 @@ public class DeliveryMethodsController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/All/{pageNumber}")]
+	[HttpGet("GetAllWithRelatedResources/{pageNumber}")]
 	public async Task<ActionResult> GetAllWithIncludes(int page)
 	{
 		var cacheData = "GetAllDelMethodWithIncludes";
@@ -85,7 +85,7 @@ public class DeliveryMethodsController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpGet("In/{id}")]
+	[HttpGet("GetByIdWithRelatedResources/{id}")]
 	[Authorize(Policy = "Admin")]
 	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
 	{

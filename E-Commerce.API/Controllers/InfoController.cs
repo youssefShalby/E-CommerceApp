@@ -13,7 +13,7 @@ public class InfoController : ControllerBase
 	}
 
 
-	[HttpGet("Address")]
+	[HttpGet("GetAddress")]
 	[Authorize]
 	public async Task<ActionResult<IdentityAddressDto>> GetAddress()
 	{
@@ -28,7 +28,7 @@ public class InfoController : ControllerBase
 		return AddressMapper.ToAddressDto(user.Address ?? new Address());
 	}
 
-	[HttpPut("Address")]
+	[HttpPut("UpdateAddress")]
 	[Authorize]
 	public async Task<ActionResult> UpdateAddress(IdentityAddressDto model)
 	{
@@ -46,7 +46,7 @@ public class InfoController : ControllerBase
 		return Ok(result);
 	}
 
-	[HttpPut("updateinfo")]
+	[HttpPut("UpdateInfo")]
 	[Authorize]
 	public async Task<ActionResult> UpdateInfo(UpdateAccountDto model)
 	{
