@@ -123,7 +123,7 @@ public class AuthController : ControllerBase
 		return Ok(result); //> 200
 	}
 
-	[HttpPost("ResendConfirmationEmail/{email:apha}")]
+	[HttpPost("ResendConfirmationEmail/{email}")]
 	public async Task<ActionResult> ResendConfirmationEmail(string email)
 	{
 		var result = await _userService.ResendConfirmationEmail(email);
