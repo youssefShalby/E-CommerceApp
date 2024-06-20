@@ -102,8 +102,7 @@ public class OrdersController : ControllerBase
     }
 
 	[HttpGet("{id}")]
-	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetById(Guid id)
+	public async Task<ActionResult> GetByIdToShow(Guid id)
 	{
 		var cacheData = "GetOrderById";
 

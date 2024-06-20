@@ -60,18 +60,25 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet("GetAll/{pageNumber}")]
-	[Authorize(policy: "Admin")]
-    public async Task<ActionResult> GetAll(int pageNumber)
+    public async Task<ActionResult> GetAllToShow(int pageNumber)
     {
-		//> the system support many many products in short time, so we need the system always updated, s we not need caching
+		//> we need short time caching here
+		var cacheData = "GetAllProductsToShow";
+		var products = await _cacheHelper.GetDataFromCache<IReadOnlyList<GetProductDto>>(cacheData);
+		if (products is not null)
+		{
+			return Ok(products);
+		}
 
-		var products = await _productService.GetAllAsync(pageNumber);
+		products = await _productService.GetAllAsync(pageNumber);
         if(products is null)
         {
             return NotFound();
         }
 
-        return Ok(products);
+		await _cacheHelper.SetDataInShortTimeCache(cacheData, products);
+
+		return Ok(products);
     }
 
 	[HttpGet("GetAllUserProducts/{pageNumber}")]
@@ -180,8 +187,7 @@ public class ProductsController : ControllerBase
 	}
 
 	[HttpGet("GetByIdWithRelatedResources/{id}")]
-	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
+	public async Task<ActionResult> GetByIdWithIncludesToShow(Guid id)
 	{
 		var cacheData = "GetProductByIdWithIncludes";
 		var product = await _cacheHelper.GetDataFromCache<GetProductWithIncludesDto>(cacheData);

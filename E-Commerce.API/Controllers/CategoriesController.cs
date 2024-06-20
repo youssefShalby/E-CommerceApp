@@ -17,8 +17,7 @@ public class CategoriesController : ControllerBase
     }
 
 	[HttpGet("GetAll/{pageNumber}")]
-	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetAll(int pageNumber)
+	public async Task<ActionResult> GetAllToShow(int pageNumber)
 	{
 		var cacheData = "GetAllCategories";
 
@@ -85,7 +84,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("GetAllExceptDeleted/{pageNumber}")]
-	public async Task<ActionResult> GetAllExceptDeleted(int pageNumber)
+	public async Task<ActionResult> GetAllExceptDeletedToShow(int pageNumber)
 	{
 		var cacheData = "GetAllCatExceptDeleted";
 
@@ -130,8 +129,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpGet("GetByIdWithRelatedResources/{id}")]
-	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
+	public async Task<ActionResult> GetByIdWithIncludesToShow(Guid id)
 	{
 		var cacheData = "GetCategoryByIdWithIncludes";
 
@@ -153,7 +151,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPost]
-	[Authorize]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> CreateCategory(CreateCategoryDto model)
 	{
 		var result = await _categoryService.CreateAsync(model);
@@ -165,7 +163,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpPut("{id}")]
-	[Authorize]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> UpdateCategory([FromRoute] Guid id, [FromBody] UpdateCategoryDto model)
 	{
 		var result = await _categoryService.UpdateAsync(id, model);
@@ -177,7 +175,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpDelete("{id}")]
-	[Authorize]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> DeleteCategory([FromRoute] Guid id)
 	{
 		var result = await _categoryService.DeleteAsync(id);
@@ -189,7 +187,7 @@ public class CategoriesController : ControllerBase
 	}
 
 	[HttpDelete("MarkAsDeleted/{id}")]
-	[Authorize]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> MarkAsDeleted([FromRoute] Guid id)
 	{
 		var result = await _categoryService.MarkeCategoryAsDeletedAsync(id);

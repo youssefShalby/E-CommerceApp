@@ -17,8 +17,7 @@ public class BrandsController : ControllerBase
     }
 
 	[HttpGet("GetAll/{pageNumber}")]
-	[Authorize(policy: "Admin")]
-    public async Task<ActionResult> GetAll(int pageNumber)
+    public async Task<ActionResult> GetAllToShow(int pageNumber)
     {
 		var cacheData = "GetAllBrands";
 
@@ -87,7 +86,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpGet("GetAllExceptDeleted/{pageNumber}")]
-	public async Task<ActionResult> GetAllExceptDeleted(int pageNumber)
+	public async Task<ActionResult> GetAllExceptDeletedToShow(int pageNumber)
 	{
 		var cacheData = "GetAllBrandsCatExceptDeleted";
 
@@ -132,8 +131,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpGet("GetByIdWithRelatedResources/{id}")]
-	[Authorize(policy: "Admin")]
-	public async Task<ActionResult> GetByIdWithIncludes(Guid id)
+	public async Task<ActionResult> GetByIdWithIncludesToShow(Guid id)
 	{
 		var cacheData = "GetBrandByIdWithIncludes";
 
@@ -191,7 +189,7 @@ public class BrandsController : ControllerBase
 	}
 
 	[HttpDelete("MarkAsDeleted/{id}")]
-	[Authorize]
+	[Authorize(policy: "Admin")]
 	public async Task<ActionResult> MarkAsDeleted([FromRoute] Guid id)
 	{
 		var result = await _brandService.MarkeBrandAsDeletedAsync(id);
